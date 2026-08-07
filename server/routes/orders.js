@@ -1,0 +1,109 @@
+const router = require('express').Router();
+const db = require('../db');
+const { requireAuth, genOrderNo } = require('../auth');
+
+const fen2yuan = (fen) => fen / 100;
+const parseJson = (s) => { try { return JSON.parse(s); } catch (e) { return {}; } };
+
+// 出参：把订单里所有分金额转成元
+function serialize(o) {
+  return {
+    id: o.id,
+    orderNo: o.order_no,
+    type: o.type,
+    productName: o.product_name,
+    spec: parseJson(o.spec),
+    server: o.server,
+    gameId: o.game_id,
+    wx: o.wx,
+    note: o.note,
+    total: fen2yuan(o.total),
+    status: o.status,
+    boosterId: o.booster_id,
+    payMethod: o.pay_method,
+    paidAt: o.paid_at,
+    createdAt: o.created_at
+  };
+}
+
+const STATUS_TEXT = {
+  unpaid: '待支付', paid: '待开始', ongoing: '进行中',
+  done: '已完成', refunded: '已退款', cancelled: '已取消'
+};
+
+/**
+ * 下单。服务端重新计算价格，客户端只传类型 + 数量/规格。
+ * POST /api/orders  { type:'escort'|'fun', rankId?, hourId?, qty, server, gameId, wx, note }
+ */
+router.post('/', requireAuth, (req, res) => {
+  const u = req.user;
+  const b = req.body || {};
+  let totalFen, productId, productName, spec;
+
+  if (b.type === 'fun') {
+    const f = db.prepare('SELECT * FROM fun_orders WHERE id = ?').get(b.productId);
+    if (!f) return res.status(400).json({ code: 400, msg: '趣味单不存在' });
+    const qty = Math.max(1, Math.min(99, Math.floor(Number(b.qty) || 1)));
+    totalFen = f.price * qty;
+    productId = f.id;
+    productName = f.name;
+    spec = { qty };
+  } else {
+    const r = db.prepare('SELECT * FROM spec_ranks WHERE id = ?').get(b.rankId);
+    const h = db.prepare('SELECT * FROM spec_hours WHERE id = ?').get(b.hourId);
+    if (!r || !h) return res.status(400).json({ code: 400, msg: '段位/时长配置错误' });
+    totalFen = r.price + h.price;
+    productId = null;
+    productName = `护航·${r.label}`;
+    spec = { rank: r.label, rankId: r.id, hour: h.label, hourId: h.id };
+  }
+
+  const no = genOrderNo();
+  db.prepare(`INSERT INTO orders
+    (order_no, user_id, type, product_id, product_name, spec, server, game_id, wx, note, total)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(
+    no, u.id, b.type, productId, productName, JSON.stringify(spec),
+    b.server || '', b.gameId || '', b.wx || '', b.note || '', totalFen);
+
+  const order = db.prepare('SELECT * FROM orders WHERE order_no = ?').get(no);
+  res.json({ code: 0, data: serialize(order), msg: `下单成功，待支付 ¥${(totalFen / 100).toFixed(2)}` });
+});
+
+/** GET /api/orders  我的订单列表 ?type=escort|fun|all&status=... */
+router.get('/', requireAuth, (req, res) => {
+  let sql = 'SELECT * FROM orders WHERE user_id = ?';
+  const args = [req.user.id];
+  if (req.query.type && req.query.type !== 'all') { sql += ' AND type = ?'; args.push(req.query.type); }
+  if (req.query.status && req.query.status !== 'all') { sql += ' AND status = ?'; args.push(req.query.status); }
+  sql += ' ORDER BY id DESC';
+  const list = db.prepare(sql).all(...args).map(serialize);
+  res.json({ code: 0, data: list });
+});
+
+/** GET /api/orders/:id  订单详情 */
+router.get('/:id', requireAuth, (req, res) => {
+  const o = db.prepare('SELECT * FROM orders WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+  if (!o) return res.status(404).json({ code: 404, msg: '订单不存在' });
+  res.json({ code: 0, data: { ...serialize(o), statusText: STATUS_TEXT[o.status] } });
+});
+
+/** POST /api/orders/:id/cancel  未支付订单取消 */
+router.post('/:id/cancel', requireAuth, (req, res) => {
+  const o = db.prepare('SELECT * FROM orders WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+  if (!o) return res.status(404).json({ code: 404, msg: '订单不存在' });
+  if (o.status !== 'unpaid') return res.status(400).json({ code: 400, msg: '当前状态不可取消' });
+  db.prepare(`UPDATE orders SET status='cancelled', updated_at=datetime('now','localtime') WHERE id=?`).run(o.id);
+  res.json({ code: 0, msg: '已取消' });
+});
+
+/** PATCH /api/orders/:id/status  打手/客服更新状态（演示用，正常应校验权限） */
+router.patch('/:id/status', requireAuth, (req, res) => {
+  const allowed = ['paid', 'ongoing', 'done', 'refunded', 'cancelled'];
+  const s = req.body && req.body.status;
+  if (!allowed.includes(s)) return res.status(400).json({ code: 400, msg: '非法状态' });
+  const r = db.prepare(`UPDATE orders SET status=?, updated_at=datetime('now','localtime') WHERE id=?`).run(s, req.params.id);
+  if (r.changes === 0) return res.status(404).json({ code: 404, msg: '订单不存在' });
+  res.json({ code: 0, msg: '已更新' });
+});
+
+module.exports = router;

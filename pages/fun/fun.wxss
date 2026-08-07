@@ -1,0 +1,36 @@
+/* 趣味单列表 */
+.fcard { margin: 24rpx; padding: 28rpx; }
+.fcard .ftitle { font-size: 30rpx; font-weight: 800; display: flex; align-items: center; flex-wrap: wrap; }
+.fcard .fsub { font-size: 24rpx; color: #7b8296; margin-top: 10rpx; }
+.fcard .fdesc { font-size: 22rpx; color: #7b8296; margin-top: 8rpx; line-height: 1.6; }
+.fcard .frow { display: flex; align-items: center; justify-content: space-between; margin-top: 24rpx; }
+.fcard .fprice { font-size: 40rpx; font-weight: 800; color: #ea580c; }
+.fcard .frow .btn { padding: 14rpx 36rpx; font-size: 26rpx; }
+
+/* 下单弹窗 */
+.ofield .lab {
+  font-size: 24rpx; color: #7b8296; margin: 24rpx 0 16rpx; display: flex; align-items: center;
+}
+.ofield .lab::before { content: ""; width: 6rpx; height: 20rpx; background: #ff6a0e; border-radius: 4rpx; margin-right: 8rpx; }
+.qty { display: flex; align-items: center; }
+.stepper {
+  width: 64rpx; height: 64rpx; border-radius: 50%;
+  border: 1rpx solid #e6e9f0; background: #ffffff; color: #1f2430;
+  display: flex; align-items: center; justify-content: center; font-size: 34rpx;
+}
+.stepper:active { background: #f6f7fb; }
+.qnum { min-width: 80rpx; text-align: center; font-size: 32rpx; font-weight: 700; }
+.finp-row { margin-bottom: 16rpx; }
+.finp-row .inp {
+  width: 100%; height: 88rpx;
+  background: #ffffff; border: 1rpx solid #e6e9f0; border-radius: 16rpx;
+  padding: 20rpx 24rpx; color: #1f2430; font-size: 26rpx;
+}
+.ofield .ta {
+  width: 100%; height: 120rpx;
+  background: #ffffff; border: 1rpx solid #e6e9f0; border-radius: 16rpx;
+  padding: 20rpx 24rpx; color: #1f2430; font-size: 26rpx;
+}
+.ofield .total { font-size: 24rpx; color: #7b8296; }
+.ofield .total .tp { font-size: 40rpx; color: #ea580c; font-weight: 800; }
+.ofield .frow .btn { flex: 1; margin-left: 24rpx; }

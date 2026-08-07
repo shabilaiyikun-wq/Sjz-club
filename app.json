@@ -1,0 +1,31 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/order/order",
+    "pages/detail/detail",
+    "pages/rank/rank",
+    "pages/me/me",
+    "pages/fun/fun"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "三角洲护航俱乐部",
+    "backgroundColor": "#f2f4f8",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#9aa4bd",
+    "selectedColor": "#ff6a0e",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页" },
+      { "pagePath": "pages/order/order", "text": "护航" },
+      { "pagePath": "pages/rank/rank", "text": "排行" },
+      { "pagePath": "pages/me/me", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

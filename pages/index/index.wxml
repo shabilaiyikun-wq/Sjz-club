@@ -1,0 +1,103 @@
+<view class="page">
+  <view class="scroll">
+
+    <view class="announce">
+      <view class="ico">公告</view>
+      <view class="txt">{{announce}}</view>
+    </view>
+
+    <view class="banner">
+      <view class="inner">
+        <view class="logo">三角洲行动<text class="sub">DELTA FORCE · 护航俱乐部</text></view>
+        <view class="act">
+          <text class="hot">🔥 战神大神在线：18 位 · 平均5分钟接单</text>
+          <view class="btn" bindtap="goOrder">立即护航</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="wallet">
+      <view>
+        <view class="muted sm">账户余额（元）</view>
+        <view class="num">128.50<text class="small"> 可提现</text></view>
+      </view>
+      <view class="btns">
+        <view class="btn ghost" bindtap="onCharge">充值</view>
+        <view class="btn" bindtap="goOrder">余额付款</view>
+      </view>
+    </view>
+
+    <view class="grid4">
+      <view class="cell" bindtap="goOrder"><view class="ic ic1">🛡️</view><text>三角洲护航</text></view>
+      <view class="cell" bindtap="goRank"><view class="ic ic2">🏆</view><text>大神排行</text></view>
+      <view class="cell" bindtap="onSign"><view class="ic ic3">📅</view><text>每日签到</text></view>
+      <view class="cell" bindtap="onContact"><view class="ic ic4">💬</view><text>联系客服</text></view>
+    </view>
+
+    <view class="sect">
+      <view class="hd"><text class="h">三角洲护航专区</text><text class="more" bindtap="goOrder">更多 ›</text></view>
+      <view class="zone">
+        <view class="ztitle">🪖 三角洲<text class="hl">护航</text> 专属通道</view>
+        <view class="zdesc">烽火地带撤离护航 · 全程不掉分</view>
+        <view class="zbtns">
+          <text class="zbtn hot">⚡ 极速下单</text>
+          <text class="zbtn">🛡️ 担保交易</text>
+          <text class="zbtn">🔒 封号包赔</text>
+          <text class="zbtn">🎧 开黑语音</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="sect">
+      <view class="hd"><text class="h">趣味单专区</text><text class="more" bindtap="goFun">进入专区 ›</text></view>
+      <view class="zone">
+        <view class="ztitle">🎲 趣味单 · <text class="hl">66保688w</text> 保底玩法</view>
+        <view class="zdesc">金币保底 / 趣味玩法，明码标价，保底到手不扯皮</view>
+        <view class="zbtns">
+          <text class="zbtn hot">🎯 66元保688万</text>
+          <text class="zbtn">💰 金币翻倍</text>
+          <text class="zbtn">🎰 十连趣味单</text>
+        </view>
+        <view class="btn" style="margin-top:24rpx" bindtap="goFun">去玩趣味单</view>
+      </view>
+    </view>
+
+    <view class="sect">
+      <view class="hd"><text class="h">精选大神</text><text class="more" bindtap="goRank">大神排行 ›</text></view>
+      <scroll-view scroll-x class="booster-scroll" show-scrollbar="{{false}}">
+        <view class="booster-row">
+          <view class="booster" wx:for="{{homeBoosters}}" wx:key="id" bindtap="openDetail" data-id="{{item.id}}">
+            <view class="av">
+              <view class="avc avc{{item.ci}}">{{item.initial}}</view>
+              <view class="vip">{{item.rank}}</view>
+            </view>
+            <view class="nm">{{item.name}}</view>
+            <view class="meta"><text class="stars">★★★★★</text> {{item.score}}</view>
+            <view class="meta">接单 {{item.orders}} 单</view>
+            <view class="price">¥{{item.price}}<text class="small"> 起</text></view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="sect">
+      <view class="hd"><text class="h">护航套餐 · 段位直达</text><text class="more" bindtap="goOrder">全部 ›</text></view>
+      <view class="grid4">
+        <view class="cell" wx:for="{{pkgs}}" wx:key="t" bindtap="openPkg" data-idx="{{index}}">
+          <view class="ic ic1">{{item.i}}</view>
+          <text>{{item.t}}</text>
+          <text class="pp">{{item.p}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="sect" style="margin-bottom:40rpx">
+      <view class="hd"><text class="h">下单流程</text></view>
+      <view class="card" style="padding:28rpx;font-size:24rpx;color:#6b7386;line-height:2">
+        <text>① 选择大神/套餐 → ② 填写区服、游戏ID、微信号 → ③ 支付后自动派单</text>
+        <text class="hl2" style="display:block">✓ 全程不掉段位 &nbsp;✓ 先验号后付款 &nbsp;✓ 随时可退款</text>
+      </view>
+    </view>
+
+  </view>
+</view>

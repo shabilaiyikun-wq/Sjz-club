@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="scroll">
+
+    <view class="card bcard" wx:for="{{list}}" wx:key="id"
+          bindtap="openDetail" data-id="{{item.id}}">
+      <view class="av">
+        <view class="avc avc{{item.ci}}">{{item.initial}}</view>
+        <view class="lv">{{item.rank}}</view>
+      </view>
+      <view class="info">
+        <view class="nm">
+          <text class="bn">{{item.name}}</text>
+          <text class="tag tag-orange" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+        </view>
+        <view class="row">
+          <text class="stars">★★★★★</text>
+          <text class="muted sm">{{item.score}}</text>
+          <text class="tag tag-cyan" wx:for="{{item.modes}}" wx:for-item="md" wx:key="*this">{{md}}</text>
+        </view>
+        <view class="desc">{{item.desc}}</view>
+      </view>
+      <view class="rt">
+        <view class="p">¥{{item.price}}<text class="small">起</text></view>
+        <view class="ord">已接 {{item.orders}} 单</view>
+      </view>
+    </view>
+
+    <view wx:if="{{!list.length}}" style="padding:60rpx 0;text-align:center" class="muted">该分类下暂无大神</view>
+    <view style="padding:40rpx 0;text-align:center" class="muted">— 已经到底啦 —</view>
+
+  </view>
+</view>

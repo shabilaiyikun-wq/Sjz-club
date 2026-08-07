@@ -1,0 +1,101 @@
+<view class="page">
+  <view class="scroll">
+
+    <view class="announce">
+      <view class="ico">趣味单</view>
+      <view class="txt">明码标价 · 保底到手 · 全程担保，玩法有疑问先问客服</view>
+    </view>
+
+    <view class="card fcard" wx:for="{{list}}" wx:key="id">
+      <view class="ftitle">{{item.name}}
+        <text class="tag tag-orange" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+      </view>
+      <view class="fsub">{{item.sub}}</view>
+      <view class="fdesc">{{item.desc}}</view>
+      <view class="frow">
+        <view class="fprice">¥{{item.price}}<text class="muted sm"> / 单</text></view>
+        <view class="btn" bindtap="openOrder" data-idx="{{index}}">立即下单</view>
+      </view>
+    </view>
+
+    <view style="padding:40rpx 0;text-align:center" class="muted">— 已到底 · 更多趣味单持续上新 —</view>
+
+  </view>
+
+  <!-- 下单弹窗 -->
+  <view class="mask {{showOrder ? 'show' : ''}}" bindtap="closeOrder">
+    <view class="sheet" catchtap="noop">
+      <view class="bar"></view>
+      <view class="sh-title" wx:if="{{cur}}">🛒 {{cur.name}}</view>
+
+      <view class="ofield" wx:if="{{cur}}">
+        <view class="lab">购买数量</view>
+        <view class="qty">
+          <view class="stepper" bindtap="qtyMinus">−</view>
+          <view class="qnum">{{qty}}</view>
+          <view class="stepper" bindtap="qtyPlus">＋</view>
+          <text class="muted sm" style="margin-left:16rpx">单价 ¥{{cur.price}}</text>
+        </view>
+
+        <view class="lab">选择区服</view>
+        <view class="opts">
+          <view class="opt {{selServer == index ? 'active' : ''}}"
+                wx:for="{{servers}}" wx:key="*this"
+                data-i="{{index}}" bindtap="setServer">{{item}}</view>
+        </view>
+
+        <view class="lab">订单信息</view>
+        <view class="finp-row">
+          <input class="inp" placeholder="游戏ID（必填）" maxlength="32" value="{{gameId}}" bindinput="onGameId" />
+        </view>
+        <view class="finp-row">
+          <input class="inp" placeholder="微信号（接单联系）" maxlength="32" value="{{gameWx}}" bindinput="onWx" />
+        </view>
+        <textarea class="ta" placeholder="备注（选填）" value="{{note}}" bindinput="onNote"></textarea>
+
+        <view class="frow" style="margin-top:20rpx">
+          <view class="total">合计 <text class="tp">¥{{total}}</text></view>
+          <view class="btn" bindtap="confirmOrder">确认下单</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 支付弹窗 -->
+  <view class="mask {{showPay ? 'show' : ''}}" data-m="pay" bindtap="onMask">
+    <view class="sheet" catchtap="noop">
+      <view class="bar"></view>
+      <view class="sh-title">💰 确认支付 <text class="hl2">¥{{payAmount}}</text></view>
+
+      <view class="pay-opt {{payMethod == '微信支付' ? 'active' : ''}}" bindtap="pickPay" data-m="微信支付">
+        <view class="ic" style="background:#22c55e">💚</view>
+        <view><view class="pn">微信支付</view><view class="muted sm">推荐 · 到账快</view></view>
+        <view class="rr">{{payMethod == '微信支付' ? '✓' : ''}}</view>
+      </view>
+
+      <view class="pay-opt {{payMethod == '余额支付' ? 'active' : ''}}" bindtap="pickPay" data-m="余额支付">
+        <view class="ic" style="background:linear-gradient(135deg,#ff8a2a,#ff6a0e)">🪙</view>
+        <view><view class="pn">余额支付</view><view class="muted sm">余额 ¥128.50</view></view>
+        <view class="rr">{{payMethod == '余额支付' ? '✓' : ''}}</view>
+      </view>
+
+      <view class="btn block" bindtap="doPay">立即支付</view>
+      <view class="agree">支付即代表同意《护航服务协议》· 全程担保交易</view>
+    </view>
+  </view>
+
+  <!-- 下单成功弹窗 -->
+  <view class="mask mid {{showOk ? 'show' : ''}}" bindtap="hideOk">
+    <view class="ok-modal" catchtap="noop">
+      <view class="c">✓</view>
+      <view class="ok-h">下单成功</view>
+      <view class="ok-p">已支付 <text class="hl2">¥{{payAmount}}</text>（{{payMethod}}）</view>
+      <view class="ok-p" wx:if="{{cur}}">「{{cur.name}}」× {{qty}} 份，客服将尽快联系发放</view>
+      <view class="ok-p">全程担保交易，发货异常随时可退款</view>
+      <view class="ok-btns">
+        <view class="btn ghost" bindtap="hideOk">知道了</view>
+        <view class="btn" bindtap="backHome">返回首页</view>
+      </view>
+    </view>
+  </view>
+</view>

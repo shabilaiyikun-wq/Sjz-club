@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="scroll">
+
+    <view class="rank-sel">
+      <view class="fbtn {{rankType == 'booster' ? 'active' : ''}}" data-t="booster" bindtap="switchRank">大神接单榜</view>
+      <view class="fbtn {{rankType == 'boss' ? 'active' : ''}}" data-t="boss" bindtap="switchRank">老板消费榜</view>
+    </view>
+
+    <view class="rank-list">
+      <view class="card r-item" wx:for="{{list}}" wx:key="no">
+        <view class="no {{index < 3 ? 'n' + (index + 1) : ''}}">{{item.no}}</view>
+        <view class="av"><view class="avc avc{{item.ci}}">{{item.initial}}</view></view>
+        <view class="rmid">
+          <view class="nm">{{item.n}}</view>
+          <view class="sub">{{item.sub}}</view>
+        </view>
+        <view class="val">
+          <view class="vv">{{item.v}}</view>
+          <view class="muted sm">{{item.vk}}</view>
+        </view>
+      </view>
+    </view>
+
+  </view>
+</view>

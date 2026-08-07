@@ -1,0 +1,106 @@
+<view class="page">
+  <view class="scroll" wx:if="{{booster}}">
+
+    <view class="card bcard" style="margin-top:24rpx">
+      <view class="av">
+        <view class="avc avc{{booster.ci}}">{{booster.initial}}</view>
+        <view class="lv">{{booster.rank}}</view>
+      </view>
+      <view class="info">
+        <view class="nm">
+          <text class="bn">{{booster.name}}</text>
+          <text class="tag tag-orange" wx:for="{{booster.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+        </view>
+        <view class="row">
+          <text class="stars">★★★★★</text>
+          <text class="muted sm">{{booster.score}}</text>
+          <text class="muted sm">接单 {{booster.orders}} 单</text>
+        </view>
+        <view class="desc">{{booster.desc}}</view>
+      </view>
+      <view class="rt">
+        <view class="p">¥{{booster.price}}<text class="small">起</text></view>
+      </view>
+    </view>
+
+    <view class="card spec">
+      <view class="lab">目标段位</view>
+      <view class="opts">
+        <view class="opt {{selRank == index ? 'active' : ''}}"
+              wx:for="{{ranks}}" wx:key="t"
+              data-i="{{index}}" bindtap="pickRank">{{item.t}}<text class="sub">¥{{item.p}}</text></view>
+      </view>
+
+      <view class="lab">护航时长</view>
+      <view class="opts">
+        <view class="opt {{selHour == index ? 'active' : ''}}"
+              wx:for="{{hours}}" wx:key="t"
+              data-i="{{index}}" bindtap="pickHour">{{item.t}}<text class="sub">{{item.s}}{{item.p ? ' +¥' + item.p : ''}}</text></view>
+      </view>
+    </view>
+
+    <view class="card spec">
+      <view class="lab">选择区服</view>
+      <view class="opts">
+        <view class="opt {{selServer == index ? 'active' : ''}}"
+              wx:for="{{servers}}" wx:key="*this"
+              data-i="{{index}}" bindtap="pickServer">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="row">
+        <input class="inp" placeholder="游戏ID（必填）" maxlength="32" value="{{gameId}}" bindinput="onGameId" />
+        <input class="inp" placeholder="微信号（接单联系）" maxlength="32" value="{{gameWx}}" bindinput="onWx" />
+      </view>
+      <textarea class="ta" placeholder="备注：需要的模式 / 上号时间 / 其他要求（选填）"
+                value="{{note}}" bindinput="onNote"></textarea>
+    </view>
+
+  </view>
+
+  <view class="order-bar" wx:if="{{booster}}">
+    <view class="total">合计 <text class="tp">¥{{total}}</text>
+      <view class="tip">{{tip}}</view>
+    </view>
+    <view class="btn" bindtap="confirmOrder">立即下单</view>
+  </view>
+
+  <!-- 支付弹窗 -->
+  <view class="mask {{showPay ? 'show' : ''}}" data-m="pay" bindtap="onMask">
+    <view class="sheet" catchtap="noop">
+      <view class="bar"></view>
+      <view class="sh-title">💰 确认支付 <text class="hl2">¥{{payAmount}}</text></view>
+
+      <view class="pay-opt {{payMethod == '微信支付' ? 'active' : ''}}" bindtap="pickPay" data-m="微信支付">
+        <view class="ic" style="background:#22c55e">💚</view>
+        <view><view class="pn">微信支付</view><view class="muted sm">推荐 · 到账快</view></view>
+        <view class="rr">{{payMethod == '微信支付' ? '✓' : ''}}</view>
+      </view>
+
+      <view class="pay-opt {{payMethod == '余额支付' ? 'active' : ''}}" bindtap="pickPay" data-m="余额支付">
+        <view class="ic" style="background:linear-gradient(135deg,#ff8a2a,#ff6a0e)">🪙</view>
+        <view><view class="pn">余额支付</view><view class="muted sm">余额 ¥128.50</view></view>
+        <view class="rr">{{payMethod == '余额支付' ? '✓' : ''}}</view>
+      </view>
+
+      <view class="btn block" bindtap="doPay">立即支付</view>
+      <view class="agree">支付即代表同意《护航服务协议》· 全程担保交易</view>
+    </view>
+  </view>
+
+  <!-- 下单成功弹窗 -->
+  <view class="mask mid {{showOk ? 'show' : ''}}" bindtap="hideOk">
+    <view class="ok-modal" catchtap="noop">
+      <view class="c">✓</view>
+      <view class="ok-h">下单成功</view>
+      <view class="ok-p">已支付 <text class="hl2">¥{{payAmount}}</text>（{{payMethod}}）</view>
+      <view class="ok-p">订单已推送「{{booster.name}}」，请保持微信畅通</view>
+      <view class="ok-p">接单后先验号再开始，全程担保交易</view>
+      <view class="ok-btns">
+        <view class="btn ghost" bindtap="hideOk">查看订单</view>
+        <view class="btn" bindtap="backHome">返回首页</view>
+      </view>
+    </view>
+  </view>
+</view>
