@@ -19,13 +19,16 @@ router.post('/', requireAuth, (req, res) => {
   if (order.status !== 'unpaid') return res.status(400).json({ code: 400, msg: '订单已支付或已取消' });
 
   if (method === 'balance') {
-    const user = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
-    if (user.balance < order.total) {
-      return res.status(400).json({ code: 400, msg: `余额不足，还差 ¥${fen2yuan(order.total - user.balance).toFixed(2)}` });
-    }
     db.exec('BEGIN');
     try {
-      db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(order.total, req.user.id);
+      // 原子扣款（WHERE balance>= 防并发超扣）
+      const r = db.prepare('UPDATE users SET balance = balance - ? WHERE id = ? AND balance >= ?')
+        .run(order.total, req.user.id, order.total);
+      if (r.changes === 0) {
+        db.exec('ROLLBACK');
+        const bal = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id).balance;
+        return res.status(400).json({ code: 400, msg: `余额不足，还差 ¥${fen2yuan(order.total - bal).toFixed(2)}` });
+      }
       const bal = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id).balance;
       db.prepare(`INSERT INTO wallet_tx (user_id, amount, type, balance_after, order_id, remark)
         VALUES (?,?,?,?,?,?)`).run(req.user.id, -order.total, 'pay', bal, order.id, '护航下单扣款');
@@ -34,7 +37,7 @@ router.post('/', requireAuth, (req, res) => {
       db.exec('COMMIT');
     } catch (e) {
       db.exec('ROLLBACK');
-      throw e;
+      return res.status(500).json({ code: 500, msg: '支付异常，请重试' });
     }
     return res.json({ code: 0, msg: `支付成功 ¥${fen2yuan(order.total).toFixed(2)}` });
   }

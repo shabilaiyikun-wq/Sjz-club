@@ -1,28 +1,5 @@
 /* ================= 全站共享数据 ================= */
 
-const _rawBoosters = [
-  { id: 1, name: '战绩如虎', rank: '战神', score: 4.9, orders: 1523, price: 88,
-    modes: ['烽火地带'], tags: ['双倍战绩', '稳上分'],
-    desc: '三角洲战神大神 · 擅长烽火地带撤离护航，胜率86%，全程指挥不挂机' },
-  { id: 2, name: '北城以北', rank: '大师', score: 4.8, orders: 986, price: 68,
-    modes: ['烽火地带'], tags: ['性价比', '包售后'],
-    desc: '大师段位 · 烽火地带撤离成功率90%+，可语音教学' },
-  { id: 3, name: '夜枭', rank: '王牌', score: 4.9, orders: 2104, price: 108,
-    modes: ['烽火地带'], tags: ['秒接单', '全程直播'],
-    desc: '王牌打手 · 烽火地带护航大神，接单量榜前三' },
-  { id: 4, name: '老猫', rank: '钻石', score: 4.7, orders: 754, price: 58,
-    modes: ['烽火地带'], tags: ['新手友好', '有耐心'],
-    desc: '钻石段位 · 主打新手带飞，全程耐心指导不掉链子' },
-  { id: 5, name: '小A带你飞', rank: '战神', score: 5.0, orders: 3321, price: 128,
-    modes: ['烽火地带'], tags: ['全服榜一', '大神认证'],
-    desc: '全服榜一 · 战神大神，保段位保胜率，全天在线' },
-  { id: 6, name: '刀客', rank: '大师', score: 4.9, orders: 1677, price: 78,
-    modes: ['烽火地带'], tags: ['物资找回', '装备保底'],
-    desc: '烽火地带金库大神 · 摸金回本率98%，装备丢失包赔' }
-];
-
-const BOOSTERS = _rawBoosters.map((b, i) => ({ ...b, initial: b.name[0], ci: i % 4 }));
-
 /* 下单规格：目标段位 / 时长 */
 const RANKS_SPEC = [
   { t: '青铜→白金', p: 99 },
@@ -31,25 +8,42 @@ const RANKS_SPEC = [
   { t: '大师→战神', p: 428 }
 ];
 
-/* 首页套餐卡片：直接复用段位规格，保证首页价格 = 下单页实际价格 */
-const PKGS = RANKS_SPEC.map((r, i) => ({
-  t: r.t,
-  p: '¥' + r.p + '起',
-  i: ['🚀', '⚔️', '🔥', '👑'][i]
-}));
-
-/* 趣味单 / 种类单：俱乐部主打玩法，明码标价、保底到手 */
+/* 趣味单 / 种类单：源自俱乐部报价单，按「体验区/常规区/赌约区/赌红区」分区，明码标价、保底到手 */
+const FUN_IMG = '/images/fun-banner.jpg';
 const FUN_ORDERS = [
-  { id: 1, name: '66元 保688万金币', price: 66, sub: '烽火地带 · 金币保底',
-    desc: '支付66元，保底到手688万游戏币，效率单随到随发', tags: ['保底', '热门'] },
-  { id: 2, name: '166元 保1888万金币', price: 166, sub: '烽火地带 · 大额保底',
-    desc: '保底到手1888万游戏币，可分批发放，量大从优', tags: ['保底'] },
-  { id: 3, name: '288元 保3388万金币', price: 288, sub: '烽火地带 · 至尊保底',
-    desc: '保底到手3388万游戏币，大神护航加急处理', tags: ['保底', '加急'] },
-  { id: 4, name: '十连趣味单', price: 88, sub: '烽火地带 · 连开保底',
-    desc: '趣味连开玩法，保底到手888万游戏币', tags: ['趣味', '连开'] },
-  { id: 5, name: '金币翻倍券', price: 30, sub: '护航加成 · 趣味玩法',
-    desc: '任选一单护航完成后，金币收益翻倍一次', tags: ['趣味'] }
+  { id: 1, name: '66保888w', price: 66, sub: '体验区 · 每人限一次', category: '体验区', limit: 'once',
+    desc: '66元保底888万金币，每人限购一次，先付后赔', tags: ['体验', '保底'], image: FUN_IMG },
+  { id: 2, name: '88保888w', price: 88, sub: '体验区 · 每周一次', category: '体验区', limit: 'weekly',
+    desc: '88元保底888万金币，每周限一次', tags: ['体验', '保底'], image: FUN_IMG },
+  { id: 3, name: '108保1200w', price: 108, sub: '体验区 · 每人限一次', category: '体验区', limit: 'once',
+    desc: '108元保底1200万金币，每人限购一次', tags: ['体验', '保底'], image: FUN_IMG },
+  { id: 4, name: '158保1400w', price: 158, sub: '体验区 · 每周一次', category: '体验区', limit: 'weekly',
+    desc: '158元保底1400万金币，每周限一次', tags: ['体验', '保底'], image: FUN_IMG },
+
+  { id: 5, name: '66保666w', price: 66, sub: '常规区 · 金币保底', category: '常规区',
+    desc: '66元保底666万金币，随到随发', tags: ['保底', '热门'], image: FUN_IMG },
+  { id: 6, name: '99保988w', price: 99, sub: '常规区 · 金币保底', category: '常规区',
+    desc: '99元保底988万金币，随到随发', tags: ['保底'], image: FUN_IMG },
+  { id: 7, name: '148保1699w', price: 148, sub: '常规区 · 金币保底', category: '常规区',
+    desc: '148元保底1699万金币', tags: ['保底'], image: FUN_IMG },
+  { id: 8, name: '198保1988w', price: 198, sub: '常规区 · 大额保底', category: '常规区',
+    desc: '198元保底1988万金币，量大从优', tags: ['保底', '加急'], image: FUN_IMG },
+
+  { id: 9, name: '单局118', price: 118, sub: '赌约区 · 600w起 最高保底1399w', category: '赌约区',
+    desc: '单局600万起，最高保底1399万，打够结单', tags: ['赌约'], image: FUN_IMG },
+  { id: 10, name: '单局198', price: 198, sub: '赌约区 · 800w起 最高保底1899w', category: '赌约区',
+    desc: '单局800万起，最高保底1899万，打够结单', tags: ['赌约'], image: FUN_IMG },
+  { id: 11, name: '单局488', price: 488, sub: '赌约区 · 1000w起 最高保底2999w', category: '赌约区',
+    desc: '单局1000万起，最高保底2999万，打够结单', tags: ['赌约'], image: FUN_IMG },
+
+  { id: 12, name: '单局六格大红', price: 198, sub: '赌红区 · 提前出保底1000w 最高18888w', category: '赌红区',
+    desc: '单局六格大红198，提前出保底1000万，最高保底18888万，打够结单', tags: ['赌红', '大红'], image: FUN_IMG },
+  { id: 13, name: '单局九格大红', price: 589, sub: '赌红区 · 提前出保底3888w 最高48888w', category: '赌红区',
+    desc: '单局九格大红589，提前出保底3888万，最高保底48888万，打够结单', tags: ['赌红', '大红'], image: FUN_IMG },
+  { id: 14, name: '出油单', price: 299, sub: '赌红区 · 提前出保底1888w 最高2466w', category: '赌红区',
+    desc: '出油单299，提前出保底1888万，最高保底2466万，打够结单', tags: ['赌红'], image: FUN_IMG },
+  { id: 15, name: '单局三幻神', price: 328, sub: '赌红区 · 提前出保底1999w 最高3666w', category: '赌红区',
+    desc: '单局三幻神之一328，提前出保底1999万，最高保底3666万，打够结单', tags: ['赌红', '幻神'], image: FUN_IMG }
 ];
 const HOURS = [
   { t: '1小时', p: 0, s: '适合体验' },
@@ -57,23 +51,4 @@ const HOURS = [
   { t: '全程包段位', p: 60, s: '最热门🔥' }
 ];
 
-const _rb = [
-  { no: 1, n: '小A带你飞', v: '3321', vk: '单', sub: '🏆 大神认证 · 战神' },
-  { no: 2, n: '夜枭', v: '2104', vk: '单', sub: '🏆 大神认证 · 王牌' },
-  { no: 3, n: '刀客', v: '1677', vk: '单', sub: '🏆 大神认证 · 大师' },
-  { no: 4, n: '战绩如虎', v: '1523', vk: '单', sub: '· 战神' },
-  { no: 5, n: '北城以北', v: '986', vk: '单', sub: '· 大师' },
-  { no: 6, n: '老猫', v: '754', vk: '单', sub: '· 钻石' }
-];
-const _boss = [
-  { no: 1, n: '冲锋号角', v: '12860', vk: '元', sub: '老板消费 · 榜一' },
-  { no: 2, n: '吃鸡不吐骨', v: '8420', vk: '元', sub: '老板消费' },
-  { no: 3, n: '老六出击', v: '6950', vk: '元', sub: '老板消费' },
-  { no: 4, n: '一狙入魂', v: '5120', vk: '元', sub: '老板消费' },
-  { no: 5, n: '午夜战神', v: '3680', vk: '元', sub: '老板消费' },
-  { no: 6, n: '铁头冲锋', v: '2990', vk: '元', sub: '老板消费' }
-];
-const RANK_BOOSTER = _rb.map((r, i) => ({ ...r, initial: r.n[0], ci: i % 4 }));
-const RANK_BOSS = _boss.map((r, i) => ({ ...r, initial: r.n[0], ci: (i + 2) % 4 }));
-
-module.exports = { BOOSTERS, PKGS, RANKS_SPEC, HOURS, RANK_BOOSTER, RANK_BOSS, FUN_ORDERS };
+module.exports = { RANKS_SPEC, HOURS, FUN_ORDERS };

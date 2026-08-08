@@ -1,4 +1,4 @@
-<view class="page">
+<view class="page {{theme}}">
   <view class="scroll">
 
     <view class="announce">
@@ -6,34 +6,50 @@
       <view class="txt">明码标价 · 保底到手 · 全程担保，玩法有疑问先问客服</view>
     </view>
 
-    <view class="card fcard" wx:for="{{list}}" wx:key="id">
-      <view class="ftitle">{{item.name}}
-        <text class="tag tag-orange" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+    <block wx:if="{{groups.length}}">
+      <!-- 分区 tab -->
+      <view class="fz-tabs">
+        <view wx:for="{{groups}}" wx:key="category" wx:for-item="g" wx:for-index="i"
+              class="fz-tab {{funSel == i ? 'on' : ''}}"
+              bindtap="setFunSel" data-i="{{i}}">{{g.category}}</view>
       </view>
-      <view class="fsub">{{item.sub}}</view>
-      <view class="fdesc">{{item.desc}}</view>
-      <view class="frow">
-        <view class="fprice">¥{{item.price}}<text class="muted sm"> / 单</text></view>
-        <view class="btn" bindtap="openOrder" data-idx="{{index}}">立即下单</view>
+
+      <!-- 网格 2 列 -->
+      <view class="fgrid">
+        <view class="fcard2" wx:for="{{groups[funSel].items}}" wx:for-item="item" wx:key="id"
+              bindtap="openOrder" data-id="{{item.id}}">
+          <image class="fimg" src="{{item.image}}" mode="aspectFill" />
+          <view class="fbody">
+            <view class="fnm">{{item.name}}
+              <text class="tag tag-orange" wx:if="{{item.tags.length}}" style="margin-left:8rpx">{{item.tags[0]}}</text>
+            </view>
+            <view class="fsub2">{{item.sub}}</view>
+            <view class="frow2">
+              <view class="fprice">¥{{item.price}}<text class="sm">/单</text></view>
+              <view class="btn mini-btn">下单</view>
+            </view>
+          </view>
+        </view>
       </view>
-    </view>
+    </block>
 
     <view style="padding:40rpx 0;text-align:center" class="muted">— 已到底 · 更多趣味单持续上新 —</view>
 
   </view>
 
-  <!-- 下单弹窗 -->
+  <!-- 下单弹窗（不变） -->
   <view class="mask {{showOrder ? 'show' : ''}}" bindtap="closeOrder">
     <view class="sheet" catchtap="noop">
       <view class="bar"></view>
       <view class="sh-title" wx:if="{{cur}}">🛒 {{cur.name}}</view>
 
       <view class="ofield" wx:if="{{cur}}">
+        <view class="muted sm" wx:if="{{cur.buy_limit}}" style="margin-bottom:16rpx">⚠️ {{cur.buy_limit === 'weekly' ? '该玩法每周限购 1 次' : '该玩法每人限购 1 次'}}</view>
         <view class="lab">购买数量</view>
         <view class="qty">
           <view class="stepper" bindtap="qtyMinus">−</view>
           <view class="qnum">{{qty}}</view>
-          <view class="stepper" bindtap="qtyPlus">＋</view>
+          <view class="stepper {{cur.buy_limit ? 'disabled' : ''}}" bindtap="qtyPlus">＋</view>
           <text class="muted sm" style="margin-left:16rpx">单价 ¥{{cur.price}}</text>
         </view>
 
@@ -42,6 +58,13 @@
           <view class="opt {{selServer == index ? 'active' : ''}}"
                 wx:for="{{servers}}" wx:key="*this"
                 data-i="{{index}}" bindtap="setServer">{{item}}</view>
+        </view>
+
+        <view class="lab">设备端别</view>
+        <view class="opts">
+          <view class="opt {{selPlatform == index ? 'active' : ''}}"
+                wx:for="{{platforms}}" wx:key="*this"
+                data-i="{{index}}" bindtap="setPlatform">{{item}}</view>
         </view>
 
         <view class="lab">订单信息</view>
@@ -75,7 +98,7 @@
 
       <view class="pay-opt {{payMethod == '余额支付' ? 'active' : ''}}" bindtap="pickPay" data-m="余额支付">
         <view class="ic" style="background:linear-gradient(135deg,#ff8a2a,#ff6a0e)">🪙</view>
-        <view><view class="pn">余额支付</view><view class="muted sm">余额 ¥128.50</view></view>
+        <view><view class="pn">余额支付</view><view class="muted sm">余额 ¥{{balance}}</view></view>
         <view class="rr">{{payMethod == '余额支付' ? '✓' : ''}}</view>
       </view>
 

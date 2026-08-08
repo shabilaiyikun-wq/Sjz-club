@@ -9,12 +9,15 @@ const parseJson = (s) => { try { return JSON.parse(s); } catch (e) { return []; 
  * 返回 boosters / funOrders / ranks / hours，价格单位：元
  */
 router.get('/', (req, res) => {
-  const boosters = db.prepare('SELECT * FROM boosters ORDER BY id').all()
+  const boosters = db.prepare(`
+    SELECT b.*, (SELECT COUNT(*) FROM orders o WHERE o.booster_id = b.user_id AND o.status = 'done') done_cnt
+    FROM boosters b ORDER BY b.id`).all()
     .map((b) => ({
       ...b,
       modes: parseJson(b.modes),
       tags: parseJson(b.tags),
-      price: fen2yuan(b.price)
+      price: fen2yuan(b.price),
+      orders: b.user_id ? (b.done_cnt || 0) : b.orders   // 关联打手的统计真实单数，手动上架的保留展示值
     }));
 
   const funOrders = db.prepare('SELECT * FROM fun_orders ORDER BY id').all()

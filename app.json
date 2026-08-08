@@ -5,7 +5,12 @@
     "pages/detail/detail",
     "pages/rank/rank",
     "pages/me/me",
-    "pages/fun/fun"
+    "pages/fun/fun",
+    "pages/orders/orders",
+    "pages/booster/booster",
+    "pages/settings/settings",
+    "pages/doc/doc",
+    "pages/wallet/wallet"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",
@@ -22,7 +27,7 @@
     "list": [
       { "pagePath": "pages/index/index", "text": "首页" },
       { "pagePath": "pages/order/order", "text": "护航" },
-      { "pagePath": "pages/rank/rank", "text": "排行" },
+      { "pagePath": "pages/fun/fun", "text": "趣味单" },
       { "pagePath": "pages/me/me", "text": "我的" }
     ]
   },

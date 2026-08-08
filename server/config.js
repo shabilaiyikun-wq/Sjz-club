@@ -13,5 +13,8 @@ module.exports = {
   },
 
   // 模拟支付模式：true 时微信支付直接返回成功（等申请到商户号后置 false 并填商户配置）
-  mockPay: true
+  mockPay: true,
+
+  // 管理后台登录密码（上线前务必修改！可用环境变量 ADMIN_PASSWORD 覆盖）
+  adminPassword: process.env.ADMIN_PASSWORD || 'admin123'
 };

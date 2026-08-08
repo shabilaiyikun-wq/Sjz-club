@@ -1,1 +1,10 @@
-/* 样式集中在全局 app.wxss */
+/* 标签筛选条：横向滚动，样式复用全局 .fbtn */
+.tag-bar {
+  white-space: nowrap;
+  padding: 24rpx 24rpx 0;
+  box-sizing: border-box;
+}
+.tag-bar .fbtn {
+  display: inline-flex;
+  margin-right: 16rpx;
+}

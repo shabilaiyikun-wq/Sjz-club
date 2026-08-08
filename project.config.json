@@ -1,7 +1,11 @@
 {
   "description": "三角洲行动护航俱乐部点单小程序",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "folder", "value": "server" },
+      { "type": "file", "value": "DEV-NOTES.md" },
+      { "type": "file", "value": ".gitignore" }
+    ],
     "include": []
   },
   "setting": {

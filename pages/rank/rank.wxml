@@ -1,9 +1,8 @@
-<view class="page">
+<view class="page {{theme}}">
   <view class="scroll">
 
     <view class="rank-sel">
-      <view class="fbtn {{rankType == 'booster' ? 'active' : ''}}" data-t="booster" bindtap="switchRank">大神接单榜</view>
-      <view class="fbtn {{rankType == 'boss' ? 'active' : ''}}" data-t="boss" bindtap="switchRank">老板消费榜</view>
+      <view class="fbtn active">老板消费榜</view>
     </view>
 
     <view class="rank-list">
@@ -11,14 +10,18 @@
         <view class="no {{index < 3 ? 'n' + (index + 1) : ''}}">{{item.no}}</view>
         <view class="av"><view class="avc avc{{item.ci}}">{{item.initial}}</view></view>
         <view class="rmid">
-          <view class="nm">{{item.n}}</view>
-          <view class="sub">{{item.sub}}</view>
+          <view class="nm">{{item.nickname}}</view>
+          <view class="sub">老板消费 · 已下单 {{item.orders}} 单</view>
         </view>
         <view class="val">
-          <view class="vv">{{item.v}}</view>
-          <view class="muted sm">{{item.vk}}</view>
+          <view class="vv">{{item.amount}}</view>
+          <view class="muted sm">{{item.unit}}</view>
         </view>
       </view>
+    </view>
+
+    <view wx:if="{{!list.length}}" style="padding:100rpx 0;text-align:center;color:#9aa4bd;font-size:26rpx">
+      暂无排行数据，快去下单吧～
     </view>
 
   </view>

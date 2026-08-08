@@ -1,0 +1,20 @@
+.group { margin: 24rpx 24rpx 0; }
+.g-t { font-size: 22rpx; color: var(--muted); margin: 0 8rpx 12rpx; }
+.mlist { margin: 0; }
+.s-val { margin-left: auto; color: var(--muted); font-size: 24rpx; margin-right: 16rpx; }
+
+.theme-switch {
+  margin-left: auto;
+  display: flex;
+  background: var(--soft);
+  border: 1rpx solid var(--line);
+  border-radius: 999rpx;
+  padding: 4rpx;
+}
+.ts {
+  padding: 8rpx 28rpx;
+  font-size: 24rpx;
+  border-radius: 999rpx;
+  color: var(--muted);
+}
+.ts.on { background: var(--primary); color: #fff; font-weight: 600; }

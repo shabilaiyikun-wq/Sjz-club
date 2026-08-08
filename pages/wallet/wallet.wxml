@@ -1,0 +1,19 @@
+<view class="page {{theme}}">
+  <view class="whead">
+    <text class="wlabel">当前余额</text>
+    <text class="wbal"><text class="wsym">¥</text>{{balance}}</text>
+    <view class="wre" bindtap="recharge">充值</view>
+  </view>
+
+  <view class="tlist">
+    <view class="titem" wx:for="{{tx}}" wx:key="id">
+      <view class="tic">{{item.icon}}</view>
+      <view class="tmid">
+        <view class="tnm">{{item.name}}</view>
+        <view class="tsub">{{item.remark}}<text wx:if="{{item.remark}}"> · </text>{{item.time}}</view>
+      </view>
+      <view class="tval {{item.sign === '+' ? 'plus' : 'minus'}}">{{item.sign}}{{item.amount}}</view>
+    </view>
+    <view class="tempty" wx:if="{{!tx.length}}">暂无流水记录，去充一笔试试</view>
+  </view>
+</view>

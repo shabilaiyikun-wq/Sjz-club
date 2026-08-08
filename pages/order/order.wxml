@@ -1,5 +1,11 @@
-<view class="page">
+<view class="page {{theme}}">
   <view class="scroll">
+
+    <scroll-view scroll-x class="tag-bar" wx:if="{{tags.length}}" show-scrollbar="{{false}}">
+      <view class="fbtn {{selTag == '' ? 'active' : ''}}" data-t="" bindtap="pickTag">全部</view>
+      <view class="fbtn {{selTag == item ? 'active' : ''}}"
+            wx:for="{{tags}}" wx:key="*this" data-t="{{item}}" bindtap="pickTag">{{item}}</view>
+    </scroll-view>
 
     <view class="card bcard" wx:for="{{list}}" wx:key="id"
           bindtap="openDetail" data-id="{{item.id}}">

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>三角洲护航 · 管理后台</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font: 14px/1.6 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f2f4f8; color: #1f2430; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { font-size: 20px; margin-bottom: 16px; }
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .toolbar .err { color: #e5484d; font-size: 13px; }
+  button { border: none; background: #ff6a0e; color: #fff; padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  button:active { opacity: .85; }
+  button.mini { padding: 4px 10px; font-size: 12px; }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid #e6e9f0; margin-bottom: 20px; }
+  .tab { padding: 10px 18px; cursor: pointer; color: #7b8296; font-size: 14px; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab:hover { color: #ff6a0e; }
+  .tab.active { color: #ff6a0e; font-weight: 600; border-bottom-color: #ff6a0e; }
+  .hidden { display: none; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .card { background: #fff; border: 1px solid #e6e9f0; border-radius: 12px; padding: 16px; }
+  .card .v { font-size: 24px; font-weight: 700; color: #ff6a0e; }
+  .card .k { color: #7b8296; font-size: 13px; margin-top: 4px; }
+  .panel { background: #fff; border: 1px solid #e6e9f0; border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+  .panel .ph { padding: 12px 16px; font-weight: 600; border-bottom: 1px solid #eef0f5; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #f0f2f7; white-space: nowrap; }
+  th { background: #fafbfd; color: #7b8296; font-weight: 500; }
+  td .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; }
+  .t-unpaid { background: #fff3e0; color: #f08c00; }
+  .t-paid { background: #e3f6ff; color: #0aa2c0; }
+  .t-ongoing { background: #e8f8ff; color: #2ec5ff; }
+  .t-done { background: #e6f9f0; color: #0ca678; }
+  .t-refunded, .t-cancelled { background: #fdecec; color: #e5484d; }
+  select { padding: 3px 6px; border-radius: 6px; border: 1px solid #d9dee8; background: #fff; font-size: 12px; }
+  .empty { padding: 24px; text-align: center; color: #9aa4bd; }
+  .login-mask { position: fixed; inset: 0; background: #f2f4f8; display: none; align-items: center; justify-content: center; z-index: 99; }
+  .login-mask.show { display: flex; }
+  .login-box { background: #fff; border: 1px solid #e6e9f0; border-radius: 16px; padding: 32px; width: 300px; text-align: center; }
+  .login-box h2 { font-size: 18px; margin-bottom: 20px; }
+  .login-box input { width: 100%; padding: 10px 12px; border: 1px solid #d9dee8; border-radius: 8px; font-size: 14px; box-sizing: border-box; margin-bottom: 12px; }
+  .login-box .lerr { color: #e5484d; font-size: 13px; min-height: 18px; margin-bottom: 8px; }
+  .login-box button { width: 100%; padding: 10px; font-size: 15px; }
+  .mask { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+  .mask.show { display: flex; }
+  .mask .box { background: #fff; border-radius: 14px; padding: 20px 24px; width: 420px; max-height: 90vh; overflow:auto; }
+  .mask .box h3 { margin-bottom: 14px; }
+  .mask .box label { display: block; margin-bottom: 10px; font-size: 13px; color: #7b8296; }
+  .mask .box input, .mask .box textarea, .mask .box select { width: 100%; margin-top: 4px; padding: 8px 10px; border: 1px solid #d9dee8; border-radius: 8px; font-size: 13px; box-sizing: border-box; font-family: inherit; }
+  .mask .box .brow { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="login-mask" id="login">
+  <div class="login-box">
+    <h2>🔒 管理后台</h2>
+    <input type="password" id="pw" placeholder="请输入管理员密码" onkeydown="if(event.key==='Enter')login()">
+    <div class="lerr" id="lerr"></div>
+    <button onclick="login()">登 录</button>
+  </div>
+</div>
+<div class="mask" id="mask"></div>
+
+<div class="wrap">
+  <div class="toolbar">
+    <h1 style="margin:0">🎮 三角洲护航 · 管理后台</h1>
+    <button onclick="load()">刷新</button>
+    <span class="err" id="err"></span>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <a class="tab active" data-p="dash">📊 仪表盘</a>
+    <a class="tab" data-p="orders">📋 订单</a>
+    <a class="tab" data-p="users">👤 用户</a>
+    <a class="tab" data-p="apps">🛡️ 打手申请</a>
+    <a class="tab" data-p="boosters">🏆 护航打手</a>
+    <a class="tab" data-p="fun">🎯 趣味单</a>
+  </nav>
+
+  <!-- 仪表盘 -->
+  <section id="p-dash" class="panel-sec">
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <!-- 订单 -->
+  <section id="p-orders" class="panel-sec hidden">
+    <div class="panel">
+      <div class="ph">订单（最近 50 条）</div>
+      <div style="overflow:auto">
+        <table>
+          <thead><tr><th>ID</th><th>订单号</th><th>用户</th><th>类型</th><th>产品</th><th>规格</th><th>金额</th><th>状态</th><th>区服/游戏ID</th><th>打手ID</th><th>截图</th><th>下单时间</th></tr></thead>
+          <tbody id="orders"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 用户 -->
+  <section id="p-users" class="panel-sec hidden">
+    <div class="panel">
+      <div class="ph">用户</div>
+      <div style="overflow:auto">
+        <table>
+          <thead><tr><th>ID</th><th>昵称</th><th>微信号</th><th>手机</th><th>余额</th><th>打手</th><th>注册时间</th></tr></thead>
+          <tbody id="users"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 打手申请 -->
+  <section id="p-apps" class="panel-sec hidden">
+    <div class="panel">
+      <div class="ph">打手申请审核</div>
+      <div style="overflow:auto">
+        <table>
+          <thead><tr><th>ID</th><th>用户</th><th>姓名</th><th>手机号</th><th>微信号</th><th>大神名</th><th>段位</th><th>端别</th><th>单价(元)</th><th>简介/标签</th><th>状态</th><th>申请时间</th><th>操作</th></tr></thead>
+          <tbody id="boosterApps"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 护航打手 -->
+  <section id="p-boosters" class="panel-sec hidden">
+    <div class="panel">
+      <div class="ph">护航打手（小程序护航页展示）
+        <button class="mini" style="float:right" onclick="editBooster(null)">＋ 新增打手</button>
+      </div>
+      <div style="overflow:auto">
+        <table>
+          <thead><tr><th>ID</th><th>昵称</th><th>段位</th><th>评分</th><th>接单数</th><th>单价(元)</th><th>模式</th><th>标签</th><th>简介</th><th>操作</th></tr></thead>
+          <tbody id="boosters"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 趣味单管理 -->
+  <section id="p-fun" class="panel-sec hidden">
+    <div class="panel">
+      <div class="ph">趣味单管理（小程序趣味单页展示，含图片、分区、限购）
+        <button class="mini" style="float:right" onclick="editFun(null)">＋ 新增趣味单</button>
+      </div>
+      <div style="overflow:auto">
+        <table>
+          <thead><tr><th>ID</th><th>图片</th><th>名称</th><th>价格(元)</th><th>副标题</th><th>分区</th><th>限购</th><th>标签</th><th>简介</th><th>操作</th></tr></thead>
+          <tbody id="funOrders"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function showLogin() { $('login').classList.add('show'); }
+
+$('tabs').addEventListener('click', (e) => {
+  const t = e.target.closest('.tab');
+  if (!t) return;
+  document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x === t));
+  document.querySelectorAll('.panel-sec').forEach((s) => s.classList.toggle('hidden', s.id !== 'p-' + t.dataset.p));
+});
+
+function closeMask() { $('mask').classList.remove('show'); $('mask').innerHTML = ''; }
+
+// ======== 打手编辑 ========
+function editBooster(b) {
+  const isNew = !b;
+  const v = (x) => esc(isNew ? '' : (x || ''));
+  const arr = (x) => esc(isNew ? '' : ((x || []).join('，')));
+  $('mask').classList.add('show');
+  const safe = (x) => (isNew ? null : (x || null));
+  $('mask').innerHTML = `
+    <div class="box">
+      <h3>${isNew ? '新增打手' : '编辑打手'}</h3>
+      <label>昵称 *<input id="bName" value="${v(safe(b) && safe(b).name)}"></label>
+      <label>段位<input id="bRank" value="${v(safe(b) && safe(b).rank)}"></label>
+      <label>评分(0-5)<input id="bScore" value="${v(safe(b) && safe(b).score)}"></label>
+      <label>接单数<input id="bOrders" value="${v(safe(b) && safe(b).orders)}"></label>
+      <label>单价(元) *<input id="bPrice" value="${v(safe(b) && safe(b).price)}"></label>
+      <label>模式(逗号分隔)<input id="bModes" value="${arr(safe(b) && safe(b).modes)}"></label>
+      <label>标签(逗号分隔)<input id="bTags" value="${arr(safe(b) && safe(b).tags)}"></label>
+      <label>简介<textarea id="bDesc" rows="2">${v(safe(b) && safe(b).desc)}</textarea></label>
+      <div class="brow">
+        <button onclick="closeMask()">取消</button>
+        <button onclick="saveBooster(${isNew ? 'null' : (b && b.id)})">保存</button>
+      </div>
+    </div>`;
+}
+async function saveBooster(id) {
+  const get = (n) => $('b' + n).value.trim();
+  const data = {
+    name: get('Name'), rank: get('Rank'), score: Number(get('Score')),
+    orders: Number(get('Orders')), price: Number(get('Price')),
+    modes: get('Modes').split(/[,，]/).map(s => s.trim()).filter(Boolean),
+    tags: get('Tags').split(/[,，]/).map(s => s.trim()).filter(Boolean),
+    desc: get('Desc')
+  };
+  const url = id ? '/api/admin/boosters/' + id : '/api/admin/boosters';
+  const r = await fetch(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const d = await r.json();
+  if (d.code !== 0) return alert(d.msg);
+  closeMask(); load();
+}
+async function delBooster(id, name) {
+  if (!confirm('确定删除打手「' + name + '」？')) return;
+  const r = await fetch('/api/admin/boosters/' + id, { method: 'DELETE' });
+  const d = await r.json();
+  if (d.code !== 0) return alert(d.msg);
+  load();
+}
+
+// ======== 趣味单编辑 ========
+function editFun(f) {
+  const isNew = !f;
+  const v = (x) => esc(isNew ? '' : (x || ''));
+  const arr = (x) => esc(isNew ? '' : ((x || []).join('，')));
+  const sel = (val, opt) => esc(val) === opt ? 'selected' : '';
+  $('mask').classList.add('show');
+  const safe = (x) => (isNew ? null : (x || null));
+  $('mask').innerHTML = `
+    <div class="box">
+      <h3>${isNew ? '新增趣味单' : '编辑趣味单'}</h3>
+      <label>名称 *<input id="fName" value="${v(safe(f) && safe(f).name)}"></label>
+      <label>单价(元) *<input id="fPrice" type="number" step="0.01" value="${v(safe(f) && safe(f).price)}"></label>
+      <label>副标题<input id="fSub" value="${v(safe(f) && safe(f).sub)}"></label>
+      <label>分区
+        <select id="fCategory">
+          <option value="体验区" ${sel(safe(f)&&safe(f).category, '体验区')}>体验区</option>
+          <option value="常规区" ${sel(safe(f)&&safe(f).category, '常规区')}>常规区</option>
+          <option value="赌约区" ${sel(safe(f)&&safe(f).category, '赌约区')}>赌约区</option>
+          <option value="赌红区" ${sel(safe(f)&&safe(f).category, '赌红区')}>赌红区</option>
+        </select></label>
+      <label>限购
+        <select id="fLimit">
+          <option value="" ${sel(safe(f)&&safe(f).buy_limit, '')}>不限</option>
+          <option value="once" ${sel(safe(f)&&safe(f).buy_limit, 'once')}>每人一次</option>
+          <option value="weekly" ${sel(safe(f)&&safe(f).buy_limit, 'weekly')}>每周一次</option>
+        </select></label>
+      <label>标签(逗号分隔)<input id="fTags" value="${arr(safe(f) && safe(f).tags)}"></label>
+      <label>简介<textarea id="fDesc" rows="2">${v(safe(f) && safe(f).desc)}</textarea></label>
+      <label>图片URL<input id="fImage" value="${v(safe(f) && safe(f).image)}" placeholder="/images/fun-banner.jpg"></label>
+      <div class="brow">
+        <button onclick="closeMask()">取消</button>
+        <button onclick="saveFun(${isNew ? 'null' : (f && f.id)})">保存</button>
+      </div>
+    </div>`;
+}
+async function saveFun(id) {
+  const get = (n) => $('f' + n).value.trim();
+  const data = {
+    name: get('Name'), price: Number(get('Price')), sub: get('Sub'),
+    desc: get('Desc'), category: get('Category'), buy_limit: get('Limit'),
+    tags: get('Tags').split(/[,，]/).map(s => s.trim()).filter(Boolean),
+    image: get('Image')
+  };
+  const url = id ? '/api/admin/fun-orders/' + id : '/api/admin/fun-orders';
+  const r = await fetch(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const d = await r.json();
+  if (d.code !== 0) return alert(d.msg);
+  closeMask(); load();
+}
+async function delFun(id, name) {
+  if (!confirm('确定删除趣味单「' + name + '」？')) return;
+  const r = await fetch('/api/admin/fun-orders/' + id, { method: 'DELETE' });
+  const d = await r.json();
+  if (d.code !== 0) return alert(d.msg);
+  load();
+}
+
+async function reviewBooster(id, status) {
+  const r = await fetch('/api/admin/booster/' + id + '/status', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status })
+  });
+  const d = await r.json();
+  if (d.code !== 0) alert(d.msg);
+  load();
+}
+
+async function login() {
+  const r = await fetch('/api/admin/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: $('pw').value })
+  });
+  const d = await r.json();
+  if (d.code === 0) { $('login').classList.remove('show'); $('pw').value = ''; load(); }
+  else $('lerr').textContent = d.msg || '密码错误';
+}
+
+async function load() {
+  const err = $('err'); err.textContent = '';
+  try {
+    const r = await fetch('/api/admin/dashboard');
+    if (r.status === 401) { showLogin(); return; }
+    const d = (await r.json()).data;
+    const s = d.stats;
+    $('cards').innerHTML = `
+      <div class="card"><div class="v">${s.total}</div><div class="k">总订单</div></div>
+      <div class="card"><div class="v">${s.unpaid}</div><div class="k">待支付</div></div>
+      <div class="card"><div class="v">¥${s.revenue.toFixed(2)}</div><div class="k">在途营收</div></div>
+      <div class="card"><div class="v">${s.todayOrders}</div><div class="k">今日订单</div></div>
+      <div class="card"><div class="v">${s.users}</div><div class="k">用户数</div></div>
+      <div class="card"><div class="v">¥${s.userBalance.toFixed(2)}</div><div class="k">用户总余额</div></div>`;
+
+    $('orders').innerHTML = d.orders.length ? d.orders.map((o) => `
+      <tr><td>${o.id}</td><td>${esc(o.orderNo)}</td><td>${esc(o.nickname)}</td><td>${o.type}</td><td>${esc(o.productName)}</td><td>${esc(o.spec)}</td><td><b>¥${o.total.toFixed(2)}</b></td><td><span class="tag t-${o.status}">${o.statusText}</span><select data-id="${o.id}">${['paid','ongoing','done','refunded','cancelled'].map((st) => `<option value="${st}" ${o.status===st?'selected':''}>${{paid:'待开始',ongoing:'进行中',done:'已完成',refunded:'已退款',cancelled:'已取消'}[st]}</option>`).join('')}</select></td><td>${esc(o.server)} / ${esc(o.gameId)}</td><td>${o.boosterId || '-'}</td><td>${o.doneImage ? '<a href="'+esc(o.doneImage)+'" target="_blank">查看</a>' : '-'}</td><td>${esc(o.createdAt)}</td></tr>`).join('') : '<tr><td colspan="12" class="empty">暂无订单</td></tr>';
+
+    $('users').innerHTML = d.users.map((u) =>
+      `<tr title="${esc(u.openid)}"><td>${u.id}</td><td>${esc(u.nickname)}</td><td>${u.wechat ? esc(u.wechat) : '-'}</td><td>${u.phone ? esc(u.phone) : '-'}</td><td>¥${u.balance.toFixed(2)}</td><td>${{0:'—',1:'审核中',2:'打手'}[u.boosterStatus] || '—'}</td><td>${esc(u.createdAt)}</td></tr>`).join('');
+
+    $('boosterApps').innerHTML = (d.boosterApps || []).map((a) => `
+      <tr><td>${a.id}</td><td>${esc(a.userNickname)}</td><td>${esc(a.name)}</td><td>${esc(a.phone)}</td><td>${esc(a.wx)}</td><td><b>${esc(a.nickname) || '—'}</b></td><td>${esc(a.rank) || '—'}</td><td>${esc(a.platform) || '—'}</td><td>${a.price > 0 ? '¥' + a.price.toFixed(2) : '—'}</td><td style="max-width:220px;white-space:normal">${esc(a.intro)}<br><span style="color:#0aa2c0">${(a.tags || []).map(esc).join('、')}</span></td><td>${{0:'待审核',1:'已通过',2:'已驳回'}[a.status] || '—'}</td><td>${esc(a.createdAt)}</td><td>${a.status === 0 ? `<button class="mini" onclick="reviewBooster(${a.id}, 1)">通过</button> <button class="mini" style="background:#e5484d" onclick="reviewBooster(${a.id}, 2)">驳回</button>` : '—'}</td></tr>`).join('') || '<tr><td colspan="13" class="empty">暂无申请</td></tr>';
+
+    $('boosters').innerHTML = (d.boosters || []).map((b) => `
+      <tr><td>${b.id}</td><td><b>${esc(b.name)}</b></td><td>${esc(b.rank)}</td><td>${b.score}</td><td>${b.orders}</td><td><b>¥${b.price.toFixed(2)}</b></td><td>${(b.modes || []).map(esc).join(', ') || '-'}</td><td>${(b.tags || []).map(esc).join(', ') || '-'}</td><td style="max-width:200px;white-space:normal">${esc(b.desc)}</td><td><button class="mini" onclick="editBooster(${JSON.stringify(b).replace(/"/g,'&quot;')})">编辑</button> <button class="mini" style="background:#e5484d" onclick="delBooster(${b.id}, '${esc(b.name)}')">删除</button></td></tr>`).join('') || '<tr><td colspan="10" class="empty">暂无打手</td></tr>';
+
+    // 趣味单
+    const LIMIT_MAP = { once: '每人一次', weekly: '每周一次' };
+    $('funOrders').innerHTML = (d.funOrders || []).map((f) => `
+      <tr><td>${f.id}</td><td style="max-width:60px"><img src="${esc(f.image)}" style="width:48px;height:48px;border-radius:6px;object-fit:cover" onerror="this.style.display='none'"></td><td><b>${esc(f.name)}</b></td><td>¥${Number(f.price).toFixed(2)}</td><td>${esc(f.sub)}</td><td>${esc(f.category)}</td><td>${LIMIT_MAP[f.buy_limit] || '不限'}</td><td>${(f.tags || []).map(esc).join(', ') || '-'}</td><td style="max-width:180px;white-space:normal">${esc(f.desc)}</td><td><button class="mini" onclick="editFun(${JSON.stringify(f).replace(/"/g,'&quot;')})">编辑</button> <button class="mini" style="background:#e5484d" onclick="delFun(${f.id}, '${esc(f.name)}')">删除</button></td></tr>`).join('') || '<tr><td colspan="10" class="empty">暂无趣味单</td></tr>';
+  } catch (e) {
+    err.textContent = '加载失败：' + e.message;
+  }
+}
+
+$('orders').addEventListener('change', (e) => {
+  if (e.target.tagName !== 'SELECT') return;
+  fetch('/api/admin/orders/' + e.target.dataset.id + '/status', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: e.target.value })
+  }).then((r) => r.json()).then((d) => { if (d.code !== 0) alert(d.msg); load(); });
+});
+
+load();
+</script>
+</body>
+</html>

@@ -1,1 +1,6 @@
 /* 样式集中在全局 app.wxss */
+.apply-lbl { font-size: 24rpx; color: var(--muted); margin: 4rpx 0 16rpx; }
+
+/* 申请弹窗内的端别/标签选择强制横排换行（防止微信把 flex 容器降级成 block 导致标签竖排） */
+.apply-pop .opts { display: flex; flex-wrap: wrap; }
+.apply-pop .opt { display: inline-flex; align-items: center; margin: 0 16rpx 16rpx 0; }

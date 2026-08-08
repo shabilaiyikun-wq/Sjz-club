@@ -1,9 +1,10 @@
-<view class="page">
+<view class="page {{theme}}">
   <view class="scroll" wx:if="{{booster}}">
 
     <view class="card bcard" style="margin-top:24rpx">
       <view class="av">
-        <view class="avc avc{{booster.ci}}">{{booster.initial}}</view>
+        <image wx:if="{{booster.avatar}}" class="av-img" src="{{booster.avatar}}" mode="aspectFill" />
+        <view wx:else class="avc avc{{booster.ci}}">{{booster.initial}}</view>
         <view class="lv">{{booster.rank}}</view>
       </view>
       <view class="info">
@@ -24,13 +25,6 @@
     </view>
 
     <view class="card spec">
-      <view class="lab">目标段位</view>
-      <view class="opts">
-        <view class="opt {{selRank == index ? 'active' : ''}}"
-              wx:for="{{ranks}}" wx:key="t"
-              data-i="{{index}}" bindtap="pickRank">{{item.t}}<text class="sub">¥{{item.p}}</text></view>
-      </view>
-
       <view class="lab">护航时长</view>
       <view class="opts">
         <view class="opt {{selHour == index ? 'active' : ''}}"
@@ -45,6 +39,15 @@
         <view class="opt {{selServer == index ? 'active' : ''}}"
               wx:for="{{servers}}" wx:key="*this"
               data-i="{{index}}" bindtap="pickServer">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="card spec">
+      <view class="lab">设备端别</view>
+      <view class="opts">
+        <view class="opt {{selPlatform == index ? 'active' : ''}}"
+              wx:for="{{platforms}}" wx:key="*this"
+              data-i="{{index}}" bindtap="pickPlatform">{{item}}</view>
       </view>
     </view>
 
@@ -80,7 +83,7 @@
 
       <view class="pay-opt {{payMethod == '余额支付' ? 'active' : ''}}" bindtap="pickPay" data-m="余额支付">
         <view class="ic" style="background:linear-gradient(135deg,#ff8a2a,#ff6a0e)">🪙</view>
-        <view><view class="pn">余额支付</view><view class="muted sm">余额 ¥128.50</view></view>
+        <view><view class="pn">余额支付</view><view class="muted sm">余额 ¥{{balance}}</view></view>
         <view class="rr">{{payMethod == '余额支付' ? '✓' : ''}}</view>
       </view>
 

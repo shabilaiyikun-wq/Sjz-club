@@ -1,0 +1,51 @@
+<view class="page {{theme}}">
+  <view class="scroll">
+
+    <!-- 状态筛选 -->
+    <view class="filter">
+      <view class="fbtn {{filter==item.k ? 'active' : ''}}"
+            wx:for="{{filters}}" wx:key="k"
+            data-k="{{item.k}}" bindtap="switchFilter">{{item.t}}</view>
+    </view>
+
+    <!-- 订单列表 -->
+    <view class="olist" wx:if="{{list.length}}">
+      <view class="card oitem" wx:for="{{list}}" wx:key="id"
+            bindtap="openDetail" data-id="{{item.id}}">
+        <view class="orow">
+          <text class="oname">{{item.productName}}</text>
+          <text class="otag" style="color:{{item.color}}">{{item.statusText}}</text>
+        </view>
+        <view class="osub">
+          {{item.specText}}<block wx:if="{{item.server}}"> · {{item.server}}</block>
+        </view>
+        <view class="orow">
+          <text class="omuted">{{item.createdAt}}</text>
+          <text class="oprice">¥{{item.totalText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty" wx:else>{{loading ? '加载中…' : '暂无订单'}}</view>
+
+  </view>
+
+  <!-- 订单详情弹窗 -->
+  <view class="d-mask" wx:if="{{showDetail}}" bindtap="closeDetail">
+    <view class="d-pop" catchtap="noop">
+      <view class="d-title">{{cur.productName}}</view>
+      <view class="d-row"><text class="dk">订单号</text><text class="dv">{{cur.orderNo}}</text></view>
+      <view class="d-row"><text class="dk">规格</text><text class="dv">{{cur.specText || '—'}}</text></view>
+      <view class="d-row"><text class="dk">区服</text><text class="dv">{{cur.server || '—'}}</text></view>
+      <view class="d-row"><text class="dk">游戏ID</text><text class="dv">{{cur.gameId || '—'}}</text></view>
+      <view class="d-row"><text class="dk">微信号</text><text class="dv">{{cur.wx || '—'}}</text></view>
+      <view class="d-row"><text class="dk">备注</text><text class="dv">{{cur.note || '—'}}</text></view>
+      <view class="d-row"><text class="dk">金额</text><text class="dv strong">¥{{cur.totalText}}</text></view>
+      <view class="d-row"><text class="dk">状态</text><text class="dv" style="color:{{cur.color}}">{{cur.statusText}}</text></view>
+      <view class="d-row"><text class="dk">下单时间</text><text class="dv">{{cur.createdAt}}</text></view>
+      <view class="d-notice">💡 如有售后问题请联系客服</view>
+      <view class="d-btn" wx:if="{{cur.status==='unpaid'}}" bindtap="cancelOrder">取消订单</view>
+      <view class="d-close" bindtap="closeDetail">关 闭</view>
+    </view>
+  </view>
+</view>

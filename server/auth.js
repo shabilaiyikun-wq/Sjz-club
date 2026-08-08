@@ -14,9 +14,15 @@ function requireAuth(req, res, next) {
   next();
 }
 
+// 打手身份校验：booster_status === 2（管理员已批准）才能操作打手功能
+function checkBooster(req, res, next) {
+  if (req.user && req.user.booster_status === 2) return next();
+  return res.status(403).json({ code: 403, msg: '还不是打手，请先在「我的」页申请' });
+}
+
 // 生成订单号
 function genOrderNo() {
   return 'DF' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 6).toUpperCase();
 }
 
-module.exports = { requireAuth, genOrderNo };
+module.exports = { requireAuth, checkBooster, genOrderNo };

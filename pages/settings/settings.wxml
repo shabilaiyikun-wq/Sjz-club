@@ -1,0 +1,69 @@
+<view class="page {{theme}}">
+  <view class="scroll">
+
+    <view class="group">
+      <view class="g-t">账号</view>
+      <view class="mlist">
+        <view class="mitem" bindtap="openNick">
+          <view class="ic ic1">✏️</view>
+          修改昵称
+          <text class="s-val">{{nickname}}</text>
+          <view class="arr">›</view>
+        </view>
+        <view class="mitem" bindtap="logout">
+          <view class="ic ic4">🚪</view>
+          退出登录
+          <view class="arr">›</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="group">
+      <view class="g-t">外观</view>
+      <view class="mlist">
+        <view class="mitem">
+          <view class="ic ic3">🎨</view>
+          主题
+          <view class="theme-switch">
+            <view class="ts {{dark ? '' : 'on'}}" bindtap="setLight">亮色</view>
+            <view class="ts {{dark ? 'on' : ''}}" bindtap="setDark">暗色</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="group">
+      <view class="g-t">关于</view>
+      <view class="mlist">
+        <view class="mitem" bindtap="goPrivacy">
+          <view class="ic ic2">🔒</view>
+          隐私政策
+          <view class="arr">›</view>
+        </view>
+        <view class="mitem" bindtap="goAgreement">
+          <view class="ic ic1">📜</view>
+          用户协议
+          <view class="arr">›</view>
+        </view>
+        <view class="mitem" bindtap="about">
+          <view class="ic ic4">ℹ️</view>
+          关于我们
+          <text class="s-val">v1.0.0</text>
+          <view class="arr">›</view>
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 修改昵称弹窗 -->
+  <view class="apply-mask" wx:if="{{showNick}}" bindtap="closeNick">
+    <view class="apply-pop" catchtap="noop">
+      <view class="apply-title">修改昵称</view>
+      <view class="apply-tip">昵称将展示在「我的」和订单中（最多12字）</view>
+      <input class="apply-input" maxlength="12" placeholder="请输入新昵称" value="{{nick}}" bindinput="onNick" />
+      <view class="apply-ok" bindtap="saveNick">保 存</view>
+      <view class="apply-cancel" bindtap="closeNick">取消</view>
+    </view>
+  </view>
+</view>

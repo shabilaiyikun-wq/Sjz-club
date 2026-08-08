@@ -1,0 +1,6 @@
+<view class="page {{theme}}">
+  <view class="scroll doc-scroll">
+    <view class="doc-title">{{title}}</view>
+    <text class="doc-body">{{content}}</text>
+  </view>
+</view>

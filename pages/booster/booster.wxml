@@ -1,0 +1,140 @@
+<view class="page {{theme}}">
+  <view class="scroll">
+
+    <!-- 顶部提示 -->
+    <view class="tip">🛡️ 抢单成功后订单将进入「进行中」，请及时联系玩家开始护航</view>
+
+    <!-- 切换 tab -->
+    <view class="tabs">
+      <view class="tab {{tab==item.k ? 'active' : ''}}"
+            wx:for="{{tabs}}" wx:key="k"
+            data-k="{{item.k}}" bindtap="switchTab">{{item.t}}</view>
+    </view>
+
+    <!-- 任务大厅：可抢订单 -->
+    <view class="blist" wx:if="{{tab==='hall' && list.length}}">
+      <view class="card bitem" wx:for="{{list}}" wx:key="id">
+        <view class="brow">
+          <text class="bname">{{item.productName}}</text>
+          <text class="btag">{{item.typeText}}</text>
+        </view>
+        <view class="bsub">
+          {{item.specText}}<block wx:if="{{item.server}}"> · {{item.server}}</block>
+          <block wx:if="{{item.gameId}}"> · ID {{item.gameId}}</block>
+        </view>
+        <view class="brow">
+          <view>
+            <text class="omuted">{{item.createdAt}}</text>
+            <view class="bprice">¥{{item.total.toFixed(2)}}</view>
+          </view>
+          <view class="btn-grab" data-id="{{item.id}}" bindtap="grab">立即抢单</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 我的接单 -->
+    <view class="blist" wx:if="{{tab==='mine' && list.length}}">
+      <view class="card bitem" wx:for="{{list}}" wx:key="id"
+            bindtap="openDetail" data-id="{{item.id}}">
+        <view class="brow">
+          <text class="bname">{{item.productName}}</text>
+          <text class="otag" style="color:{{item.color}}">{{item.statusText}}</text>
+        </view>
+        <view class="bsub">
+          {{item.specText}}<block wx:if="{{item.server}}"> · {{item.server}}</block>
+        </view>
+        <view wx:if="{{item.customerName}}" class="bsub">👤 {{item.customerName}} · ID {{item.gameId || '—'}}</view>
+        <view class="brow">
+          <view>
+            <text class="omuted">{{item.createdAt}}</text>
+            <view class="bprice">¥{{item.totalText || ''}}</view>
+          </view>
+          <view class="btn-done {{item.status==='ongoing' ? '' : 'disabled'}}"
+                wx:if="{{item.status==='ongoing'}}"
+                data-id="{{item.id}}" bindtap="finish">标记完成</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{tab!=='profile' && !list.length}}">{{loading ? '加载中…' : (tab==='hall' ? '暂无待抢订单' : '还没有接单')}}</view>
+
+    <!-- 我的资料：大神榜展示信息，打手自行维护 -->
+    <view class="blist" wx:if="{{tab==='profile'}}">
+      <view class="tip">🪪 以下信息展示在「护航」大神榜，顾客可据此挑选你。保存后立即生效。</view>
+
+      <view class="card bitem" wx:if="{{profile}}">
+        <view class="brow">
+          <view class="bav-row">
+            <image class="bav-img" src="{{profile.avatar}}" mode="aspectFill" />
+            <view class="bav-upload" bindtap="uploadAvatar">📷 换头像</view>
+          </view>
+        </view>
+        <view class="brow">
+          <text class="bname">{{profile.name}}</text>
+          <text class="otag" wx:if="{{profile.rank}}">{{profile.rank}}</text>
+        </view>
+        <view class="brow" style="margin-top:8rpx">
+          <text class="stars">★★★★★</text>
+          <text class="omuted">{{profile.score}} 分</text>
+          <text class="omuted">接单 {{profile.orders}} 单</text>
+        </view>
+        <view class="bsub" wx:if="{{profile.tags.length}}">
+          <text class="tag tag-orange" wx:for="{{profile.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+        </view>
+        <view class="bsub" wx:if="{{profile.modes.length}}">
+          模式：{{profile.modes.join('、')}}
+        </view>
+        <view class="bsub" wx:if="{{profile.desc}}">{{profile.desc}}</view>
+        <view class="brow" style="margin-top:16rpx">
+          <view class="bprice">¥{{profile.price}} 起</view>
+          <view class="btn-grab" bindtap="openEdit">编辑资料</view>
+        </view>
+      </view>
+
+      <view class="empty" wx:if="{{!profile}}">尚未上架大神榜，请联系管理员</view>
+    </view>
+
+  </view>
+
+  <!-- 订单详情弹窗 -->
+  <view class="d-mask" wx:if="{{showDetail}}" bindtap="closeDetail">
+    <view class="d-pop" catchtap="noop">
+      <view class="d-title">{{cur.productName}}</view>
+      <view class="d-row"><text class="dk">订单号</text><text class="dv">{{cur.orderNo}}</text></view>
+      <view class="d-row"><text class="dk">客户</text><text class="dv">{{cur.customerName}}</text></view>
+      <view class="d-row"><text class="dk">游戏ID</text><text class="dv">{{cur.gameId || '—'}}</text></view>
+      <view class="d-row"><text class="dk">微信号</text><text class="dv">{{cur.wx || '—'}}</text></view>
+      <view class="d-row"><text class="dk">规格</text><text class="dv">{{cur.specText || '—'}}</text></view>
+      <view class="d-row"><text class="dk">区服</text><text class="dv">{{cur.server || '—'}}</text></view>
+      <view class="d-row"><text class="dk">备注</text><text class="dv">{{cur.note || '—'}}</text></view>
+      <view class="d-row"><text class="dk">金额</text><text class="dv strong">¥{{cur.totalText}}</text></view>
+      <view class="d-row"><text class="dk">状态</text><text class="dv" style="color:{{cur.color}}">{{cur.statusText}}</text></view>
+      <view class="d-row"><text class="dk">下单时间</text><text class="dv">{{cur.createdAt}}</text></view>
+      <view wx:if="{{cur.status==='done' && cur.doneImage}}" class="d-img" bindtap="previewImg" data-src="{{cur.doneImage}}">
+        <image src="{{cur.doneImage}}" mode="widthFix" style="width:100%" />
+        <view class="d-img-tip">👆 点击查看护航完成截图</view>
+      </view>
+      <view wx:if="{{cur.status==='ongoing'}}" class="d-btn" data-id="{{cur.id}}" bindtap="finish">📷 上传截图并标记完成</view>
+      <view class="d-close" bindtap="closeDetail">关 闭</view>
+    </view>
+  </view>
+
+  <!-- 编辑资料弹窗 -->
+  <view class="apply-mask" wx:if="{{showEdit}}" bindtap="closeEdit">
+    <view class="apply-pop" catchtap="noop">
+      <view class="apply-title">编辑大神资料</view>
+      <view class="apply-tip">会展示在护航大神榜，标签可让顾客筛选</view>
+      <input class="apply-input" maxlength="20" placeholder="大神名字（必填）" value="{{eName}}" bindinput="onEName" />
+      <input class="apply-input" maxlength="10" placeholder="段位（如：战神）" value="{{eRank}}" bindinput="onERank" />
+      <view class="apply-row2">
+        <input class="apply-input" type="digit" placeholder="评分 0-5" value="{{eScore}}" bindinput="onEScore" />
+        <input class="apply-input" type="digit" placeholder="单价(元)" value="{{ePrice}}" bindinput="onEPrice" />
+      </view>
+      <input class="apply-input" maxlength="40" placeholder="模式（逗号分隔，如：烽火地带，巴克什）" value="{{eModes}}" bindinput="onEModes" />
+      <input class="apply-input" maxlength="60" placeholder="标签（逗号分隔，如：秒接单，稳上分）" value="{{eTags}}" bindinput="onETags" />
+      <textarea class="apply-ta" maxlength="200" placeholder="简介（选填）" value="{{eDesc}}" bindinput="onEDesc"></textarea>
+      <view class="apply-ok" bindtap="saveProfile">保 存</view>
+      <view class="apply-cancel" bindtap="closeEdit">取消</view>
+    </view>
+  </view>
+</view>

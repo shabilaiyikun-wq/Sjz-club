@@ -8,6 +8,8 @@ function getApp2() { return getApp(); }
 /** 登录：拿 token 存进 globalData，全程只登录一次 */
 function ensureLogin() {
   const app = getApp2();
+  // 真机 onLaunch 早期 getApp() 可能还拿不到实例，等初始化完成再重试
+  if (!app) return new Promise((resolve) => setTimeout(() => ensureLogin().then(resolve), 50));
   if (app.globalData.token) return Promise.resolve(app.globalData.token);
 
   return new Promise((resolve, reject) => {
@@ -51,7 +53,8 @@ function request(method, path, data, retried) {
       header: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
       success: (res) => {
         const body = res.data || {};
-        if (body.code === 0) return resolve(body.data);
+        // 兼容两种成功响应：有 data 的取 data；只有 msg 的（如「申请已提交」）取整个 body
+        if (body.code === 0) return resolve(body.data !== undefined ? body.data : body);
         if (body.code === 401 && !retried) {
           getApp2().globalData.token = '';
           return request(method, path, data, true).then(resolve).catch(reject);
@@ -68,5 +71,6 @@ module.exports = {
   ensureLogin,
   get: (p) => request('GET', p),
   post: (p, d) => request('POST', p, d),
-  patch: (p, d) => request('PATCH', p, d)
+  patch: (p, d) => request('PATCH', p, d),
+  put: (p, d) => request('PUT', p, d)
 };

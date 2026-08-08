@@ -1,34 +1,104 @@
-<view class="page">
+<view class="page {{theme}}">
   <view class="scroll">
 
     <view class="me-head">
       <view class="av"><view class="avc avc2">{{initial}}</view></view>
       <view>
-        <view class="nm">{{nickname}}</view>
+        <view class="nm"><text>{{nickname}}</text><view class="nm-edit" bindtap="editName">✏️ 改名</view></view>
         <view class="lv">🔰 护航老客户 · 全程担保交易</view>
       </view>
-      <view class="stats">
-        <view><text class="num">{{balance}}</text><text class="cap">余额</text></view>
-        <view><text class="num">36</text><text class="cap">优惠券</text></view>
-        <view><text class="num">6</text><text class="cap">积分</text></view>
+    </view>
+
+    <view class="wallet">
+      <view class="w-top">
+        <text class="w-label">💰 我的钱包</text>
+        <text class="w-bal"><text class="w-sym">¥</text>{{balance}}</text>
+      </view>
+      <view class="w-acts">
+        <view class="w-btn hot" bindtap="openRecharge">立即充值</view>
+        <view class="w-btn" bindtap="goWallet">明细</view>
       </view>
     </view>
 
     <view class="orders">
       <view class="o" wx:for="{{orders}}" wx:key="t"
-            bindtap="tap" data-t="{{item.t}}：{{item.v}} 单">
+            bindtap="tap" data-page="/pages/orders/orders?status={{item.k}}">
         <text style="color:{{item.c}}" class="num">{{item.v}}</text>{{item.t}}
       </view>
     </view>
 
     <view class="mlist">
       <view class="mitem" wx:for="{{menu}}" wx:key="t"
-            bindtap="tap" data-t="{{item.toast}}">
+            bindtap="tap" data-t="{{item.toast}}" data-page="{{item.page}}" data-action="{{item.action}}">
         <view class="ic {{item.ic}}">{{item.icon}}</view>
         {{item.t}}
         <view class="arr">›</view>
       </view>
     </view>
 
+  </view>
+
+  <!-- 打手申请表单 -->
+  <view class="apply-mask" wx:if="{{showApply}}" bindtap="closeApply">
+    <view class="apply-pop" catchtap="noop">
+      <view class="apply-title">申请成为打手</view>
+      <view class="apply-tip">提交后需管理员审核，通过后直接上大神榜接单</view>
+      <view class="apply-row2">
+        <input class="apply-input" placeholder="真实姓名" value="{{aName}}" bindinput="onName" />
+        <input class="apply-input" type="number" maxlength="11" placeholder="手机号" value="{{aPhone}}" bindinput="onPhone" />
+      </view>
+      <input class="apply-input" placeholder="微信号（方便玩家联系你）" value="{{aWx}}" bindinput="onWx" />
+      <view class="apply-tip" style="margin-bottom:16rpx;text-align:left;color:var(--primary)">👇 以下展示在大神榜</view>
+      <view class="opts">
+        <view class="opt {{aPlatform==='手机端' ? 'active' : ''}}" bindtap="pickPf" data-p="手机端">📱 手机端</view>
+        <view class="opt {{aPlatform==='电脑端' ? 'active' : ''}}" bindtap="pickPf" data-p="电脑端">💻 电脑端</view>
+      </view>
+      <view class="apply-row2">
+        <input class="apply-input" maxlength="20" placeholder="大神昵称（必填）" value="{{aNickname}}" bindinput="onNickname" />
+        <input class="apply-input" maxlength="10" placeholder="段位（如战神）" value="{{aRank}}" bindinput="onRank" />
+      </view>
+      <view class="apply-row2">
+        <input class="apply-input" type="digit" placeholder="单价(元) 必填" value="{{aPrice}}" bindinput="onPrice" />
+      </view>
+      <view class="apply-lbl">标签（可多选，展示在大神榜供顾客筛选）</view>
+      <view class="opts">
+        <view class="opt {{item.on ? 'active' : ''}}"
+              wx:for="{{aTagOpts}}" wx:key="t"
+              data-t="{{item.t}}" bindtap="toggleTag">{{item.t}}</view>
+      </view>
+      <textarea class="apply-ta" maxlength="200" placeholder="简介（选填，说说你的优势）" value="{{aIntro}}" bindinput="onIntro"></textarea>
+      <view class="apply-ok" bindtap="submitApply">提交申请</view>
+      <view class="apply-cancel" bindtap="closeApply">取消</view>
+    </view>
+  </view>
+
+  <!-- 充值弹窗 -->
+  <view class="apply-mask" wx:if="{{showRecharge}}" bindtap="closeRecharge">
+    <view class="apply-pop" catchtap="noop">
+      <view class="apply-title">充值余额</view>
+      <view class="apply-tip">模拟充值 · 上线后接入微信支付</view>
+      <view class="re-amounts">
+        <view wx:for="{{reAmounts}}" wx:key="*this"
+              class="re-amt {{rAmt === item ? 'on' : ''}}"
+              bindtap="pickAmt" data-a="{{item}}">¥{{item}}</view>
+      </view>
+      <view class="re-custom">
+        <text>自定义</text>
+        <input type="digit" placeholder="请输入金额" value="{{rCustom}}" bindinput="onRCustom" />
+      </view>
+      <view class="apply-ok" bindtap="submitRecharge">确认充值</view>
+      <view class="apply-cancel" bindtap="closeRecharge">取消</view>
+    </view>
+  </view>
+
+  <!-- 改名弹窗 -->
+  <view class="apply-mask" wx:if="{{showName}}" bindtap="closeName">
+    <view class="apply-pop" catchtap="noop">
+      <view class="apply-title">修改昵称</view>
+      <view class="apply-tip">好认的昵称，方便商家和打手找到你</view>
+      <input class="apply-input" maxlength="12" placeholder="输入新昵称（最多12字）" value="{{nName}}" bindinput="onNName" />
+      <view class="apply-ok" bindtap="submitName">保 存</view>
+      <view class="apply-cancel" bindtap="closeName">取消</view>
+    </view>
   </view>
 </view>

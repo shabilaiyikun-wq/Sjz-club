@@ -43,19 +43,34 @@ router.post('/', requireAuth, (req, res) => {
   if (b.type === 'fun') {
     const f = db.prepare('SELECT * FROM fun_orders WHERE id = ?').get(b.productId);
     if (!f) return res.status(400).json({ code: 400, msg: '趣味单不存在' });
+    // 限购校验（取消/退款的不算）：once 每人一次；weekly 每周一次（按自然周 strftime %W）
+    if (f.buy_limit === 'once' || f.buy_limit === 'weekly') {
+      const once = f.buy_limit === 'once';
+      const sql = once
+        ? `SELECT COUNT(*) c FROM orders WHERE user_id=? AND type='fun' AND product_id=? AND status NOT IN ('cancelled','refunded')`
+        : `SELECT COUNT(*) c FROM orders WHERE user_id=? AND type='fun' AND product_id=? AND status NOT IN ('cancelled','refunded')
+           AND strftime('%Y-%W', created_at) = strftime('%Y-%W','now','localtime')`;
+      const bought = db.prepare(sql).get(u.id, f.id).c;
+      if (bought > 0) {
+        return res.status(400).json({ code: 400, msg: once ? '该玩法每人限购 1 次，你已购买过' : '该玩法每周限购 1 次，本周已购买过' });
+      }
+    }
     const qty = Math.max(1, Math.min(99, Math.floor(Number(b.qty) || 1)));
     totalFen = f.price * qty;
     productId = f.id;
     productName = f.name;
-    spec = { qty };
+    const platform = ['手机端', '电脑端'].includes(b.platform) ? b.platform : '手机端';
+    spec = { qty, platform };
   } else {
-    const r = db.prepare('SELECT * FROM spec_ranks WHERE id = ?').get(b.rankId);
+    // 护航：价格 = 大神起步价 + 护航时长费（目标段位模块已移除）
     const h = db.prepare('SELECT * FROM spec_hours WHERE id = ?').get(b.hourId);
-    if (!r || !h) return res.status(400).json({ code: 400, msg: '段位/时长配置错误' });
-    totalFen = r.price + h.price;
+    if (!h) return res.status(400).json({ code: 400, msg: '时长配置错误' });
+    const br = b.boosterId ? db.prepare('SELECT id, name, price FROM boosters WHERE id = ?').get(b.boosterId) : null;
+    const base = br && br.price ? br.price : h.price;
+    totalFen = base + h.price;
     productId = null;
-    productName = `护航·${r.label}`;
-    spec = { rank: r.label, rankId: r.id, hour: h.label, hourId: h.id };
+    productName = '护航·' + (br ? br.name : '大神');
+    spec = { booster: br ? br.name : '', hour: h.label, hourId: h.id };
   }
 
   const no = genOrderNo();
@@ -94,16 +109,6 @@ router.post('/:id/cancel', requireAuth, (req, res) => {
   if (o.status !== 'unpaid') return res.status(400).json({ code: 400, msg: '当前状态不可取消' });
   db.prepare(`UPDATE orders SET status='cancelled', updated_at=datetime('now','localtime') WHERE id=?`).run(o.id);
   res.json({ code: 0, msg: '已取消' });
-});
-
-/** PATCH /api/orders/:id/status  打手/客服更新状态（演示用，正常应校验权限） */
-router.patch('/:id/status', requireAuth, (req, res) => {
-  const allowed = ['paid', 'ongoing', 'done', 'refunded', 'cancelled'];
-  const s = req.body && req.body.status;
-  if (!allowed.includes(s)) return res.status(400).json({ code: 400, msg: '非法状态' });
-  const r = db.prepare(`UPDATE orders SET status=?, updated_at=datetime('now','localtime') WHERE id=?`).run(s, req.params.id);
-  if (r.changes === 0) return res.status(404).json({ code: 404, msg: '订单不存在' });
-  res.json({ code: 0, msg: '已更新' });
 });
 
 module.exports = router;

@@ -5,5 +5,5 @@
  * - 上线前：换成已备案域名（微信要求 https + 白名单）
  */
 module.exports = {
-  API_BASE: 'http://127.0.0.1:3000'
+  API_BASE: 'http://192.168.1.3:3000'
 };

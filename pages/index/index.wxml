@@ -1,5 +1,7 @@
-<view class="page">
+<view class="page {{theme}}">
   <view class="scroll">
+
+    <image class="banner-img" src="{{imgBase}}/images/club-banner.jpg" mode="widthFix" show-menu-by-longpress />
 
     <view class="announce">
       <view class="ico">公告</view>
@@ -16,22 +18,11 @@
       </view>
     </view>
 
-    <view class="wallet">
-      <view>
-        <view class="muted sm">账户余额（元）</view>
-        <view class="num">128.50<text class="small"> 可提现</text></view>
-      </view>
-      <view class="btns">
-        <view class="btn ghost" bindtap="onCharge">充值</view>
-        <view class="btn" bindtap="goOrder">余额付款</view>
-      </view>
-    </view>
-
     <view class="grid4">
       <view class="cell" bindtap="goOrder"><view class="ic ic1">🛡️</view><text>三角洲护航</text></view>
       <view class="cell" bindtap="goRank"><view class="ic ic2">🏆</view><text>大神排行</text></view>
-      <view class="cell" bindtap="onSign"><view class="ic ic3">📅</view><text>每日签到</text></view>
-      <view class="cell" bindtap="onContact"><view class="ic ic4">💬</view><text>联系客服</text></view>
+      <view class="cell" bindtap="fortune"><view class="ic ic3">🎲</view><text>今日运势</text></view>
+      <view class="cell" bindtap="openKf"><view class="ic ic4">💬</view><text>联系客服</text></view>
     </view>
 
     <view class="sect">
@@ -49,26 +40,30 @@
     </view>
 
     <view class="sect">
-      <view class="hd"><text class="h">趣味单专区</text><text class="more" bindtap="goFun">进入专区 ›</text></view>
-      <view class="zone">
-        <view class="ztitle">🎲 趣味单 · <text class="hl">66保688w</text> 保底玩法</view>
-        <view class="zdesc">金币保底 / 趣味玩法，明码标价，保底到手不扯皮</view>
-        <view class="zbtns">
-          <text class="zbtn hot">🎯 66元保688万</text>
-          <text class="zbtn">💰 金币翻倍</text>
-          <text class="zbtn">🎰 十连趣味单</text>
+      <view class="hd"><text class="h">趣味单专区</text><text class="more" bindtap="goFun">全部玩法 ›</text></view>
+      <view class="zone" wx:if="{{funGroups.length}}">
+        <view class="fz-tabs">
+          <view wx:for="{{funGroups}}" wx:key="category" wx:for-item="g" wx:for-index="i"
+                class="fz-tab {{funSel == i ? 'on' : ''}}"
+                bindtap="setFunSel" data-i="{{i}}">{{g.category}}</view>
         </view>
-        <view class="btn" style="margin-top:24rpx" bindtap="goFun">去玩趣味单</view>
+        <view class="fz-item" wx:for="{{funGroups[funSel].items}}" wx:for-item="it" wx:key="id"
+              bindtap="goFun">
+          <text class="fz-name">{{it.name}}</text>
+          <text class="fz-price">¥{{it.price}}</text>
+        </view>
+        <view class="btn" style="margin-top:24rpx" bindtap="goFun">查看全部趣味单 ›</view>
       </view>
     </view>
 
-    <view class="sect">
+    <view class="sect" wx:if="{{homeBoosters.length}}">
       <view class="hd"><text class="h">精选大神</text><text class="more" bindtap="goRank">大神排行 ›</text></view>
       <scroll-view scroll-x class="booster-scroll" show-scrollbar="{{false}}">
         <view class="booster-row">
           <view class="booster" wx:for="{{homeBoosters}}" wx:key="id" bindtap="openDetail" data-id="{{item.id}}">
             <view class="av">
-              <view class="avc avc{{item.ci}}">{{item.initial}}</view>
+              <image wx:if="{{item.avatar}}" class="av-img" src="{{item.avatar}}" mode="aspectFill" />
+              <view wx:else class="avc avc{{item.ci}}">{{item.initial}}</view>
               <view class="vip">{{item.rank}}</view>
             </view>
             <view class="nm">{{item.name}}</view>
@@ -80,17 +75,6 @@
       </scroll-view>
     </view>
 
-    <view class="sect">
-      <view class="hd"><text class="h">护航套餐 · 段位直达</text><text class="more" bindtap="goOrder">全部 ›</text></view>
-      <view class="grid4">
-        <view class="cell" wx:for="{{pkgs}}" wx:key="t" bindtap="openPkg" data-idx="{{index}}">
-          <view class="ic ic1">{{item.i}}</view>
-          <text>{{item.t}}</text>
-          <text class="pp">{{item.p}}</text>
-        </view>
-      </view>
-    </view>
-
     <view class="sect" style="margin-bottom:40rpx">
       <view class="hd"><text class="h">下单流程</text></view>
       <view class="card" style="padding:28rpx;font-size:24rpx;color:#6b7386;line-height:2">
@@ -99,5 +83,39 @@
       </view>
     </view>
 
+  </view>
+
+  <!-- 客服悬浮按钮 -->
+  <view class="kf-fab" bindtap="openKf">💬<text class="kf-fab-txt">客服</text></view>
+
+  <!-- 客服二维码弹窗 -->
+  <view class="kf-mask" wx:if="{{showKf}}" bindtap="closeKf">
+    <view class="kf-pop" catchtap="noop">
+      <view class="kf-title">💬 联系客服</view>
+      <image class="kf-qr" src="{{imgBase}}/images/kf-qr.png" mode="widthFix" show-menu-by-longpress />
+      <view class="kf-tip">长按图片识别二维码<br/>添加客服微信，1对1 咨询下单</view>
+      <view class="kf-close" bindtap="closeKf">关 闭</view>
+    </view>
+  </view>
+
+  <!-- 今日运势弹窗 -->
+  <view class="kf-mask" wx:if="{{showFortune}}" bindtap="closeFortune">
+    <view class="fortune-pop" catchtap="noop">
+      <view class="fortune-level" wx:if="{{fortune}}">{{fortune.emoji}} {{fortune.level}}</view>
+      <view class="fortune-text" wx:if="{{fortune}}">{{fortune.text}}</view>
+      <view class="fortune-used" wx:if="{{fortuneUsed}}">今日已测过，明天再来试试～</view>
+      <view class="kf-close" bindtap="closeFortune">好的</view>
+    </view>
+  </view>
+
+  <!-- 点单须知弹窗：进入小程序首次弹出 -->
+  <view class="notice-mask" wx:if="{{showNotice}}" bindtap="closeNotice">
+    <view class="notice-pop" catchtap="noop">
+      <view class="notice-title">📜 点单须知</view>
+      <scroll-view scroll-y class="notice-body">
+        <view class="notice-item" wx:for="{{noticeItems}}" wx:key="*this">{{item}}</view>
+      </scroll-view>
+      <view class="notice-close" bindtap="closeNotice">知道了，去点单</view>
+    </view>
   </view>
 </view>
