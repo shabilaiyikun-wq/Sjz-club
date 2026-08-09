@@ -19,7 +19,7 @@ router.get('/', requireAuth, (req, res) => {
 });
 
 /**
- * POST /api/wallet/recharge  { amount }  模拟充值
+ /** POST /api/wallet/recharge  { amount }  模拟充值
  * 真实环境应接入微信支付商户充值，这里直接入账
  */
 router.post('/recharge', requireAuth, (req, res) => {

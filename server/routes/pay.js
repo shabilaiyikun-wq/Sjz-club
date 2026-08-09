@@ -5,7 +5,7 @@ const { requireAuth } = require('../auth');
 const fen2yuan = (fen) => fen / 100;
 
 /**
- * POST /api/pay  { orderId, method: 'balance' | 'wx' }
+ /** POST /api/pay  { orderId, method: 'balance' | 'wx' }
  * 余额支付：校验并扣款（服务端事务）。
  * 微信支付：mockPay=true 时直接标记已支付；接真实商户后改走 prepay + notify。
  */

@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 /**
- * GET /api/tasks  打手任务大厅：可抢的已支付订单
+ /** GET /api/tasks  打手任务大厅：可抢的已支付订单
  */
 router.get('/', requireAuth, checkBooster, (req, res) => {
   const list = db.prepare(
@@ -42,7 +42,7 @@ router.get('/', requireAuth, checkBooster, (req, res) => {
 });
 
 /**
- * POST /api/tasks/grab  { orderId }  打手抢单
+ /** POST /api/tasks/grab  { orderId }  打手抢单
  */
 router.post('/grab', requireAuth, checkBooster, (req, res) => {
   const orderId = (req.body || {}).orderId;

@@ -17,7 +17,7 @@ const FORTUNES = [
 ];
 
 /**
- * POST /api/fortune  今日运势（每个用户每天限一次）
+ /** POST /api/fortune  今日运势（每个用户每天限一次）
  * 当天已测过 → used:true 并返回当天测的运势；未测 → 随机抽一条并记录
  */
 router.post('/', requireAuth, (req, res) => {

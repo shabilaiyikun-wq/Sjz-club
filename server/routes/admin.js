@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const crypto = require('crypto');
+const multer = require('multer');
+const path = require('path');
 const config = require('../config');
 const db = require('../db');
 
@@ -257,6 +259,22 @@ router.post('/orders/:id/status', checkAdmin, (req, res) => {
   ).run(s, req.params.id);
   if (!r.changes) return res.status(404).json({ code: 404, msg: '订单不存在' });
   res.json({ code: 0, msg: '已更新' });
+});
+
+// ---- 趣味单图片上传 ----
+const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
+const funStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, 'fun_' + Date.now() + ext);
+  }
+});
+const funUpload = multer({ storage: funStorage, limits: { fileSize: 5 * 1024 * 1024 } });
+
+router.post('/upload/fun-image', checkAdmin, funUpload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ code: 400, msg: '请选择图片' });
+  res.json({ code: 0, data: { path: '/uploads/' + req.file.filename } });
 });
 
 module.exports = router;

@@ -33,7 +33,7 @@ const STATUS_TEXT = {
 
 /**
  * 下单。服务端重新计算价格，客户端只传类型 + 数量/规格。
- * POST /api/orders  { type:'escort'|'fun', rankId?, hourId?, qty, server, gameId, wx, note }
+ /** POST /api/orders  { type:'escort'|'fun', rankId?, hourId?, qty, server, gameId, wx, note }
  */
 router.post('/', requireAuth, (req, res) => {
   const u = req.user;

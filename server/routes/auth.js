@@ -18,7 +18,7 @@ const avatarStorage = multer.diskStorage({
 const avatarUpload = multer({ storage: avatarStorage, limits: { fileSize: 2 * 1024 * 1024 } });
 
 /**
- * POST /api/auth/login  { code }
+ /** POST /api/auth/login  { code }
  * 配置了 wx.secret 时走真实 jscode2session；
  * 否则用模拟 openid（开发阶段，新用户赠送演示余额）
  */
@@ -73,7 +73,7 @@ router.patch('/nickname', requireAuth, (req, res) => {
 });
 
 /**
- * POST /api/auth/booster/apply  { name, phone, wx, nickname, rank, price, intro, tags }
+ /** POST /api/auth/booster/apply  { name, phone, wx, nickname, rank, price, intro, tags }
  * 申请成为打手：个人信息（姓名/手机/微信）+ 大神榜展示资料（昵称/段位/单价/简介/标签）
  * 审核通过后直接用这些资料上大神榜，无需二次编辑
  */
@@ -111,7 +111,7 @@ router.post('/booster/apply', requireAuth, (req, res) => {
 const parseJson = (s) => { try { return JSON.parse(s); } catch (e) { return []; } };
 
 /**
- * GET /api/auth/booster/profile  打手自己在大神榜的资料
+ /** GET /api/auth/booster/profile  打手自己在大神榜的资料
  * 打手中心「我的资料」读取；尚未上架返回 null（可提示联系管理员）
  */
 router.get('/booster/profile', requireAuth, checkBooster, (req, res) => {
@@ -145,7 +145,7 @@ router.post('/booster/avatar', requireAuth, checkBooster, avatarUpload.single('a
   res.json({ code: 0, data: { avatar: filePath }, msg: '头像已更新' });
 });
 
- * PUT /api/auth/booster/profile  打手修改自己的大神资料
+/** PUT /api/auth/booster/profile  打手修改自己的大神资料
  * 只允许改自己那条（user_id 匹配）；modes/tags 传数组
  */
 router.put('/booster/profile', requireAuth, checkBooster, (req, res) => {

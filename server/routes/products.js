@@ -5,7 +5,7 @@ const fen2yuan = (fen) => fen / 100;
 const parseJson = (s) => { try { return JSON.parse(s); } catch (e) { return []; } };
 
 /**
- * GET /api/products  一键取全部商品数据
+ /** GET /api/products  一键取全部商品数据
  * 返回 boosters / funOrders / ranks / hours，价格单位：元
  */
 router.get('/', (req, res) => {

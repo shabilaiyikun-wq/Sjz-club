@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS orders (
   updated_at TEXT DEFAULT (datetime('now','localtime'))
 );
 
+CREATE TABLE IF NOT EXISTS booster_applications (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
   name TEXT NOT NULL,                   -- 真实姓名

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const db = require('../db');
 
 /**
- * GET /api/rankings  老板消费榜（实付金额降序，取前 20）
+ /** GET /api/rankings  老板消费榜（实付金额降序，取前 20）
  */
 router.get('/', (req, res) => {
   const top = db.prepare(`

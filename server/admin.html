@@ -245,12 +245,37 @@ function editFun(f) {
         </select></label>
       <label>标签(逗号分隔)<input id="fTags" value="${arr(safe(f) && safe(f).tags)}"></label>
       <label>简介<textarea id="fDesc" rows="2">${v(safe(f) && safe(f).desc)}</textarea></label>
-      <label>图片URL<input id="fImage" value="${v(safe(f) && safe(f).image)}" placeholder="/images/fun-banner.jpg"></label>
+      <label>图片
+        <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+          <input type="file" id="fImageFile" accept="image/*" onchange="uploadFunImage()" style="flex:1">
+          <span id="fImageStatus" style="font-size:12px;color:#7b8296"></span>
+        </div>
+        <img id="fImagePreview" src="${v(safe(f) && safe(f).image)}" style="margin-top:6px;max-width:200px;max-height:120px;border-radius:6px;${(safe(f)&&safe(f).image)?'':'display:none'}">
+      </label>
+      <input type="hidden" id="fImage" value="${v(safe(f) && safe(f).image)}">
       <div class="brow">
         <button onclick="closeMask()">取消</button>
         <button onclick="saveFun(${isNew ? 'null' : (f && f.id)})">保存</button>
       </div>
     </div>`;
+}
+async function uploadFunImage() {
+  const file = $('fImageFile').files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('image', file);
+  $('fImageStatus').textContent = '上传中...';
+  try {
+    const r = await fetch('/api/admin/upload/fun-image', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.code !== 0) { $('fImageStatus').textContent = '上传失败: ' + d.msg; return; }
+    $('fImage').value = d.data.path;
+    $('fImagePreview').src = d.data.path;
+    $('fImagePreview').style.display = 'block';
+    $('fImageStatus').textContent = '✓ 已上传';
+  } catch (e) {
+    $('fImageStatus').textContent = '上传失败: ' + e.message;
+  }
 }
 async function saveFun(id) {
   const get = (n) => $('f' + n).value.trim();
